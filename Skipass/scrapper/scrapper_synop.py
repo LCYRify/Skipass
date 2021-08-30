@@ -2,32 +2,32 @@
 import requests
 import os
 
-class Scrapper() : 
+class Scrapper_synop() :
     '''
     Télécharger les fichiers d'archives mensuelles météo de météo France depuis 2010'
     '''
-    def __init__(self) : 
-        self.base_archiche_url = "https://donneespubliques.meteofrance.fr/donnees_libres/Txt/Nivo/Archive/" # nomenclature nom de fichier : "nivo.aaaamm.csv.gz"
-        self.storage = "archive_data/"
+    def __init__(self) :
+        self.base_archiche_url = "https://donneespubliques.meteofrance.fr/donnees_libres/Txt/Synop/Archive/" # nomenclature nom de fichier : "synop.aaaamm.csv.gz"
+        self.storage = "../data/archive_data/Synop/"
 
         if not os.path.exists(self.storage):
             os.makedirs(self.storage)
 
-    def run(self) : 
+    def run(self) :
         year = 2010
-        month = 1 
-        while year <= 2021 : 
-            if year != 2021 : 
-                for i in range(12) : 
+        month = 1
+        while year <= 2021 :
+            if year != 2021 :
+                for i in range(12) :
                     file_name = self.build_file_name(year, i+1)
                     self.get_archive_file(file_name)
-            else : 
-                for i in range(7) : 
+            else :
+                for i in range(7) :
                     file_name = self.build_file_name(year, i+1)
                     self.get_archive_file(file_name)
             year += 1
 
-    def get_archive_file(self, file_name) : 
+    def get_archive_file(self, file_name) :
         url = "{}{}.gz".format(self.base_archiche_url, file_name)
         output_file = "{}{}".format(self.storage, file_name)
 
@@ -38,17 +38,16 @@ class Scrapper() :
                 _buffer.write(response.content)
 
 
-    def build_file_name(self, year, month) : 
-        prefix = "nivo"
+    def build_file_name(self, year, month) :
+        prefix = "synop"
         ext = "csv"
 
-        if month < 10 : 
+        if month < 10 :
             return "{}.{}0{}.{}".format(prefix,year,month, ext)
-        else : 
+        else :
             return "{}.{}{}.{}".format(prefix,year,month, ext)
 
 
 if __name__=="__main__":
-    s = Scrapper()
+    s = Scrapper_synop()
     s.run()
-
