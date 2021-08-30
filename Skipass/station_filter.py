@@ -14,4 +14,4 @@ def station_filter():
             popup=alps.iloc[i]['Nom'].capitalize(),)
         marker.add_to(m)
 
-    return m
+    return alps, m
