@@ -45,4 +45,28 @@ STEPS :
 9/9') Deployment
 
 
+#################
+    NEW VERSION
+#################
 
+
+GOALS : 
+BRONZE : Prédiction météo aéroport de Lyon
+SILVER : Prédiction météo toutes les stations
+GOLD : Prédiction météo par coordonnées
+
+1) Get data 
+    > Météo France, SYNOP
+
+2) Clean Data : Selon l'objectif
+
+3) Data Selection :
+    > Sélection de 8 features
+    > Corrélation
+
+4) DL model : 
+    > LSTM, 1 model par station
+
+5) Test
+
+6) Web App / Container / Deployment
