@@ -7,3 +7,8 @@ def mf_date_totime(df):
 def mf_date_filter(df, year):
     df_filtered = df[df['date'].dt.year == year]
     return df_filtered
+
+def mf_date_conv_filtered(df, year):
+    df = mf_date_totime(df)
+    df = mf_date_filter(df, year)
+    return df
