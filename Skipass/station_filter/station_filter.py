@@ -1,14 +1,17 @@
-from os import stat
 import folium
 import pandas as pd
 
-def station_filter():
-    df = pd.read_csv('../../documentation/liste_stations_rawdata.txt', delimiter = ",")
-    alps = df.loc[(df['Longitude'] >= 6) & (df['Longitude'] < 7.84)
-                  &
-                  (df['Latitude'] >= 44.48) & (df['Latitude'] <= 46.37)]
-
+def station_filter_nivo():
+    df = pd.read_csv('../documentation/liste_stations_rawdata_nivo.txt', delimiter = ",")
+    alps = df.loc[(df['Longitude'] >= 6) & (df['Longitude'] < 7.84) & (df['Latitude'] >= 44.48) & (df['Latitude'] <= 46.37)]
     return alps
+
+
+def station_filter_synop():
+    df = pd.read_csv('../documentation/liste_stations_rawdata_synop.txt', delimiter= ";")
+    synop_stations = df.loc[(df['Longitude'] >= 6) & (df['Longitude'] < 7.84) &
+                  (df['Latitude'] >= 44.48) & (df['Latitude'] <= 46.37)]
+    return synop_stations
 
 
 def station_mapping(alps):
