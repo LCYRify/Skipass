@@ -7,3 +7,5 @@ raw_data/
 **/__pycache__/
 .env
 scrapper/archive_data/
+notebooks/Romain_test_notebook.ipynb
+notebooks/station_map.html
