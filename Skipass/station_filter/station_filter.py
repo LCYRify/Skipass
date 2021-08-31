@@ -21,5 +21,4 @@ def station_mapping(alps):
             location=[alps.iloc[i]['Latitude'], alps.iloc[i]['Longitude']],
             popup=alps.iloc[i]['Nom'].capitalize(),)
         marker.add_to(m)
-        m.save('station_map.html')
     return m
