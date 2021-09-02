@@ -82,6 +82,7 @@ def splitdata(df):
     df = dataframe
     """
 
+
     training_l = int(0.8 * len(df))
     test_l = len(df) - training_l
     train_l = int(0.8 * training_l)
