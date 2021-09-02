@@ -73,3 +73,22 @@ def sequence(df, lenght, target, sequence):
     y = y.reshape(y.shape[0], y.shape[-1])
 
     return X, y
+
+
+def splitdata(df):
+
+    """
+    Given the initial dataframe `df`, return a train, valid, test.
+    """
+
+    training_l = int(0.8 * len(df))
+    test_l = len(df) - training_l
+    train_l = int(0.8 * training_l)
+    valid_l = int(training_l - train_l)
+
+    test = df.tail(test_l)
+    training = df.head(training_l)
+    valid = training.tail(valid_l)
+    train = training.head(train_l)
+
+    return train, valid, test
