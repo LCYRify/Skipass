@@ -63,9 +63,9 @@ def sequence(df, lenght, target, sequence):
             inplace=True)
 
     return X_, y_
-    
+
 def df_2_nparray(X_,y_):
-    
+
     X, y = [], []
 
     for i in X_:
@@ -97,3 +97,19 @@ def splitdata(df):
     train = training.head(train_l)
 
     return train, valid, test
+
+
+def random_trainsample(X, y):
+    '''
+    Given a list of sequence and a list of target
+    it return a dict of 10 samples and targets
+    '''
+
+    sequence_len = len(X)
+    dictyX = {'X': [], 'y': []}
+
+    for i in range(10):
+        x = np.random.randint(0, sequence_len)
+        dictyX['X'].append(X[x])
+        dictyX['y'].append(y[x])
+    return dictyX
