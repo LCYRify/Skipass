@@ -62,6 +62,10 @@ def sequence(df, lenght, target, sequence):
             columns=['date', 'numer_sta', 'Latitude', 'Longitude', 'Altitude'],
             inplace=True)
 
+    return X_, y_
+    
+def df_2_nparray(X_,y_):
+    
     X, y = [], []
 
     for i in X_:
