@@ -82,8 +82,8 @@ def splitdata(df):
     df = dataframe
     """
 
-    training_l = int(0.8 * len(df_synop1))
-    test_l = len(df_synop1) - training_l
+    training_l = int(0.8 * len(df))
+    test_l = len(df) - training_l
     train_l = int(0.8 * training_l)
     valid_l = int(training_l - train_l)
 
