@@ -11,6 +11,7 @@ scikit-learn
 pylint
 matplotlib
 seaborn
+tensorflow
 
 # tests/linter
 black
