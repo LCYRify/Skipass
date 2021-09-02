@@ -102,16 +102,16 @@ def splitdata(df):
     return train, valid, test
 
 
-def random_trainsample(X, y):
+def random_trainsample(X, y, n):
     '''
-    Given a list of sequence and a list of target
+    Given a list of sequence (X), a list of target(y), the number of sample(n)
     it return a dict of 10 samples and targets
     '''
 
     sequence_len = len(X)
     dictyX = {'X': [], 'y': []}
 
-    for i in range(10):
+    for i in range(n):
         x = np.random.randint(0, sequence_len)
         dictyX['X'].append(X[x])
         dictyX['y'].append(y[x])
