@@ -1,3 +1,4 @@
+notebooks/*
 *.egg-info
 .coverage
 .ipynb_checkpoints
@@ -7,7 +8,3 @@ raw_data/
 **/__pycache__/
 .env
 scrapper/archive_data/
-notebooks/Jeremie_test_notebook\ .ipynb
-notebooks/Romain_test_notebook.ipynb
-notebooks/Romain/*
-notebooks/
