@@ -78,7 +78,8 @@ def sequence(df, lenght, target, sequence):
 def splitdata(df):
 
     """
-    Given the initial dataframe `df`, return a train, valid, test.
+    Given the initial dataframe `df`, return a df_train, df_valid, df_test.
+    df = dataframe
     """
 
     training_l = int(0.8 * len(df))
