@@ -7,7 +7,4 @@ raw_data/
 **/__pycache__/
 .env
 scrapper/archive_data/
-notebook/Jeremie_test_notebook\ .ipynb
-notebook/Romain_test_notebook.ipynb
-notebook/Deva_test_notebook.ipynb
-notebook/Romain/*
+*.ipynb
