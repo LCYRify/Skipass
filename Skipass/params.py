@@ -6,18 +6,18 @@ DATA PARAMS
 """
 
 column_dict = {
-    'date':['ns','dat'],
-    'numer_sta':['ns','nt'],
-    'Latitude':['ns','nt'],
-    'Longitude':['ns','nt'],
-    'Altitude':['ns','int'],
-    'pmer':['ss','int'],
-    'dd':['ss','int'],
-    'ff':['ss','flt'],
-    't':['ss','flt'],
-    'u':['ss','int'],
-    'ssfrai':['rs','flt'],
-    'rr3':['ms','flt']
+    'date':['ns','dat','date'],
+    'numer_sta':['ns','nt','numéro de station'],
+    'Latitude':['ns','nt','Latitude'],
+    'Longitude':['ns','nt','Longitude'],
+    'Altitude':['ns','int','Altitude'],
+    'pmer':['ss','int','Pression au niveau de la mer'],
+    'dd':['ss','int','Direction du vent'],
+    'ff':['ss','flt','Vitesse du vent'],
+    't':['ss','flt','Température'],
+    'u':['ss','int','Humidité'],
+    'ssfrai':['rs','flt','Hauteur de neige fraiche'],
+    'rr3':['ms','flt','Précipitation sur les 3 dernières heures']
 }
 
 Dtype_col = {'int':[],'flt':[],'dat':[]}
@@ -27,7 +27,7 @@ for i in column_dict:
     elif column_dict[i][1] == 'flt':
         Dtype_col['flt'].append(i)
     elif column_dict[i][1] == 'dat':
-        Dtype_col['dat'].append(i)  
+        Dtype_col['dat'].append(i)
 
 Not_encoded = ['date','numer_sta','Latitude','Longitude','Altitude']
 Num_col_standard = ['pmer','dd','ff','t','u']
@@ -45,4 +45,3 @@ sequence_train = 250
 sequence_test = int(sequence_train * 0.5)
 sequence_valid = int(sequence_train * 0.2)
 col_synop_float = Col_select[1:]
-
