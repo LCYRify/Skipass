@@ -76,10 +76,10 @@ class DataSkipass:
             Get a DF filtered without 'mq' and '/' values and a datetime type
         """
         df = self.df[self.df.numer_sta.isin(params.Stations)][params.Col_select]
-        df = df.replace("mq",value=0)
-        df = df.replace("/",value=0)
-        #df = df.replace("mq",value=np.nan)
-        #df = df.replace("/",value=np.nan)
+        #df = df.replace("mq",value=0)
+        #df = df.replace("/",value=0)
+        df = df.replace("mq",value=np.nan)
+        df = df.replace("/",value=np.nan)
         df['date'] = pd.to_datetime(df['date'],format='%Y%m%d%H%M%S',errors='coerce')
         df = df.sort_values('date')
 
