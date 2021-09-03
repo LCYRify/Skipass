@@ -92,11 +92,15 @@ class DataSkipass:
 
         return df
 
+    def replace_nan(self):
+        df = self.filter_data()
+        return df
+
     def split_set(self):
         """
         Output: A splitdata of DF
         """
-        return splitdata(self.filter_data())
+        return splitdata(self.replace_nan())
 
     def split_X_y(self):
         """
