@@ -74,6 +74,10 @@ class DataSkipass:
         for i in params.col_synop_float:
             df[i] = df[i].astype(float,errors='ignore')
 
+        df['dd_sin'] = np.sin(2 * np.pi * df.dd / 360)
+        df['dd_cos'] = np.cos(2 * np.pi * df.dd / 360)
+        #df.drop('dd', axis=1, inplace=True)
+
         return df
 
     def split_set(self):

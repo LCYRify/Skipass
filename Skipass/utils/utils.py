@@ -49,7 +49,7 @@ def sequence(df, lenght, target, sequence):
     y_ = []
 
     for i in df.numer_sta.unique():
-        d[int(i)] = df.loc[df.numer_sta == i]
+        d[int(i)] = df.loc[df.numer_sta == i].sort_values('date').reset_index(drop=True)
 
     for i in d.keys():
         for j in range(sequence):
@@ -200,5 +200,11 @@ def draw_station(X):
     axs[2, 0].set_title('précipitation sur les 3 dernières heures',
                         fontsize=20)
     sns.lineplot(x=X.index, y=X['rr3'], ax=axs[2, 0])
+    axs[2, 1].set_title('direction du vent (sin)',
+                        fontsize=20)
+    sns.lineplot(x=X.index, y=X['dd_sin'], ax=axs[2, 1])
+    axs[2, 2].set_title('direction du vent (cos)',
+                        fontsize=20)
+    sns.lineplot(x=X.index, y=X['dd_cos'], ax=axs[2, 2])
 
     print(fig)
