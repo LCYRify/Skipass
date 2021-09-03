@@ -10,20 +10,20 @@ REPLACE NAN STRATEGY:
 """
 
 column_dict = {
-    'date': ['ns', 'dat', 'date'],
-    'numer_sta': ['ns', 'nt', 'numéro de station'],
-    'Latitude': ['ns', 'nt', 'Latitude'],
-    'Longitude': ['ns', 'nt', 'Longitude'],
-    'Altitude': ['ns', 'int', 'Altitude'],
+    'date': ['ns', 'dat', 'date','na'],
+    'numer_sta': ['ns', 'nt', 'numéro de station','na'],
+    'Latitude': ['ns', 'nt', 'Latitude','na'],
+    'Longitude': ['ns', 'nt', 'Longitude','na'],
+    'Altitude': ['ns', 'int', 'Altitude','na'],
     'pmer': ['ss', 'int', 'Pression au niveau de la mer', 'replace_nan_mean_2points'],
     'dd': ['ss', 'int', 'Direction du vent', 'replace_nan_most_frequent'],
     'ff': ['ss', 'flt', 'Vitesse du vent', 'replace_nan_0'],
-    't': ['ss', 'flt', 'Température', 'replace_nan_0'],
+    't': ['ss', 'flt', 'Température', 'replace_nan_mean_2points'],
     'u': ['ss', 'int', 'Humidité', 'replace_nan_mean_2points'],
     'ssfrai': ['rs', 'flt', 'Hauteur de neige fraiche', 'replace_nan_mean_2points'],
     'rr3': ['ms', 'flt', 'Précipitation sur les 3 dernières heures', 'replace_nan_mean_2points'],
-    'dd_sin': ['ms', 'flt', 'Direction du vent (sin)'],
-    'dd_cos': ['ms', 'flt', 'Direction du vent (cos)']
+    'dd_sin': ['ms', 'flt', 'Direction du vent (sin)','na'],
+    'dd_cos': ['ms', 'flt', 'Direction du vent (cos)','na']
 }
 
 Dtype_col = {'int':[],'flt':[],'dat':[]}
