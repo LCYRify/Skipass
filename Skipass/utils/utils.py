@@ -58,11 +58,11 @@ def sequence(df, lenght, target, sequence):
             y_.append(df_target)
 
     for i in X_:
-        i.drop(columns=['date', 'numer_sta'], inplace=True)
+        i.drop(columns=['date', 'numer_sta','dd'], inplace=True)
 
     for i in y_:
         i.drop(
-            columns=['date', 'numer_sta', 'Latitude', 'Longitude', 'Altitude'],
+            columns=['date', 'numer_sta', 'Latitude', 'Longitude', 'Altitude','dd'],
             inplace=True)
 
     return X_, y_
@@ -223,3 +223,19 @@ def draw_station(X):
     sns.lineplot(x=X.index, y=X['dd_cos'], ax=axs[2, 2])
 
     print(fig)
+
+def replace_nan_0(df, column_name):
+    df[column_name] = df[column_name].replace(np.nan,value=0)
+    return df
+
+def replace_nan_mean_2points(df, column_name):
+    df.reset_index(drop=True)
+    df = df.sort_values(['numer_sta', 'date'])
+    df[column_name] = pd.concat([df['t'].ffill(), df['t'].bfill()]).groupby(level=0).mean()
+    df = df.sort_index()
+    return df.sort_index().sort_values(['date'])
+
+def replace_nan_most_frequent(df,column_name):
+    df[column_name] = df[column_name].fillna(df[column_name].mode().iloc[0])
+    return df
+
