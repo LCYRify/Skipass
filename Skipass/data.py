@@ -19,7 +19,7 @@ IMPORTS FROM SKIPASS PACKAGE
 from Skipass.utils.DataCleaner import replace_values,delete_bad_measures,select_stations
 from Skipass.utils.df_typing import mf_date_conv_filtered, mf_date_totime
 from Skipass.station_filter.station_filter import station_filter_nivo,station_filter_synop, station_mapping
-from Skipass.utils.utils import sequence, splitdata, df_2_nparray
+from Skipass.utils.utils import sequence, splitdata, df_2_nparray, replace_nan_0, replace_nan_mean_2points, replace_nan_most_frequent
 import Skipass.params as params
 
 """
@@ -30,8 +30,10 @@ path_to_station_list = '../documentation/liste_stations_rawdata_synop.txt'
 
 class DataSkipass:
 
-    def __init__(self):
+    def __init__(self, filtered = False):
         self.df = self.create_df()
+        if filtered == True:
+            self.df = self.filter_data()
 
     """
     DATA CREATION
@@ -70,30 +72,42 @@ class DataSkipass:
     DATA TRANSFORMATIONS
     """
 
-    def filter_data(self):
+    def filter_data(self, replace_value = np.nan):
         """
         Output:
             Get a DF filtered without 'mq' and '/' values and a datetime type
         """
+        # get df   
         df = self.df[self.df.numer_sta.isin(params.Stations)][params.Col_select]
-        #df = df.replace("mq",value=0)
-        #df = df.replace("/",value=0)
-        df = df.replace("mq",value=np.nan)
-        df = df.replace("/",value=np.nan)
+        # replace mq as nan
+        df = df.replace("mq",value=replace_value)
+        df = df.replace("/",value=replace_value)
+        # convert to datetime
         df['date'] = pd.to_datetime(df['date'],format='%Y%m%d%H%M%S',errors='coerce')
+        # sort via datetime
         df = df.sort_values('date')
-
+        # convert str as float
         for i in params.col_synop_float:
             df[i] = df[i].astype(float,errors='ignore')
-
+        # Replace NaN 
+        df = replace_nan_0(df, 'ff' )
+        df = replace_nan_most_frequent(df, 'dd')
+        df = replace_nan_mean_2points(df,'pmer')
+        df = replace_nan_mean_2points(df,'t')
+        df = replace_nan_mean_2points(df,'u')
+        df = replace_nan_mean_2points(df,'ssfrai')
+        df = replace_nan_mean_2points(df,'rr3')
+        # convert dd in sin/cos
         df['dd_sin'] = np.sin(2 * np.pi * df.dd / 360)
         df['dd_cos'] = np.cos(2 * np.pi * df.dd / 360)
-        #df.drop('dd', axis=1, inplace=True)
+        # convert t to °C
+        df['t'] = df['t'] - 273.15
 
         return df
 
     def replace_nan(self):
         df = self.filter_data()
+        
         return df
 
     def split_set(self):
