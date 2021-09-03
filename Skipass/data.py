@@ -102,7 +102,6 @@ class DataSkipass:
         df['dd_cos'] = np.cos(2 * np.pi * df.dd / 360)
         # convert t to °C
         df['t'] = df['t'] - 273.15
-        df.drop(columns=['dd'])
         return df
 
     def replace_nan(self):

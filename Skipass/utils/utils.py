@@ -58,11 +58,11 @@ def sequence(df, lenght, target, sequence):
             y_.append(df_target)
 
     for i in X_:
-        i.drop(columns=['date', 'numer_sta'], inplace=True)
+        i.drop(columns=['date', 'numer_sta','dd'], inplace=True)
 
     for i in y_:
         i.drop(
-            columns=['date', 'numer_sta', 'Latitude', 'Longitude', 'Altitude'],
+            columns=['date', 'numer_sta', 'Latitude', 'Longitude', 'Altitude','dd'],
             inplace=True)
 
     return X_, y_
