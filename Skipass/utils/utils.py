@@ -49,7 +49,7 @@ def sequence(df, lenght, target, sequence):
     y_ = []
 
     for i in df.numer_sta.unique():
-        d[int(i)] = df.loc[df.numer_sta == i]
+        d[int(i)] = df.loc[df.numer_sta == i].sort_values('date').reset_index(drop=True)
 
     for i in d.keys():
         for j in range(sequence):
@@ -118,23 +118,108 @@ def random_trainsample(X, y, n):
     return dictyX
 
 
-def draw_sample(X, y):
+def draw_sample(X, y, n):
     fig, axs = plt.subplots(3, 3, figsize=(25, 12))
+    fig.suptitle(f'Sample n°{n+1}.', fontsize=30)
     fig.tight_layout()
     axs[0, 0].set_title('pression au niveau de la mer', fontsize=20)
     sns.lineplot(x=X.index, y=X['pmer'] / 100, ax=axs[0, 0])
+    sns.scatterplot(x=X.index.max() + 1,
+                    y=y['pmer'] / 100,
+                    ax=axs[0, 0],
+                    sizes=40,
+                    color='red')
     axs[0, 1].set_title('direction du vent', fontsize=20)
     sns.lineplot(x=X.index, y=X['dd'], ax=axs[0, 1])
+    sns.scatterplot(x=X.index.max() + 1,
+                    y=y['dd'],
+                    ax=axs[0, 1],
+                    sizes=40,
+                    color='red')
     axs[0, 2].set_title('vitesse du vent', fontsize=20)
     sns.lineplot(x=X.index, y=X['ff'], ax=axs[0, 2])
+    sns.scatterplot(x=X.index.max() + 1,
+                    y=y['ff'] / 100,
+                    ax=axs[0, 2],
+                    sizes=40,
+                    color='red')
     axs[1, 0].set_title('température', fontsize=20)
-    sns.lineplot(x=X.index, y=X['t'] + 262, ax=axs[1, 0])
+    sns.lineplot(x=X.index, y=X['t'] - 262, ax=axs[1, 0])
+    sns.scatterplot(x=X.index.max() + 1,
+                    y=y['t'] - 273.15,
+                    ax=axs[1, 0],
+                    sizes=40,
+                    color='red')
     axs[1, 1].set_title('humidité', fontsize=20)
     sns.lineplot(x=X.index, y=X['u'], ax=axs[1, 1])
+    sns.scatterplot(x=X.index.max() + 1,
+                    y=y['u'],
+                    ax=axs[1, 1],
+                    sizes=40,
+                    color='red')
     axs[1, 2].set_title('hauteur neige fraiche', fontsize=20)
     sns.lineplot(x=X.index, y=X['ssfrai'], ax=axs[1, 2])
+    sns.scatterplot(x=X.index.max() + 1,
+                    y=y['ssfrai'],
+                    ax=axs[1, 2],
+                    sizes=40,
+                    color='red')
     axs[2, 0].set_title('précipitation sur les 3 dernières heures',
                         fontsize=20)
     sns.lineplot(x=X.index, y=X['rr3'], ax=axs[2, 0])
+    sns.scatterplot(x=X.index.max() + 1,
+                    y=y['rr3'],
+                    ax=axs[2, 0],
+                    sizes=40,
+                    color='red')
+    axs[2, 1].set_title('Direction du vent (sin)',
+                        fontsize=20)
+    sns.lineplot(x=X.index, y=X['dd_sin'], ax=axs[2, 1])
+    sns.scatterplot(x=X.index.max() + 1,
+                    y=y['dd_sin'],
+                    ax=axs[2, 1],
+                    sizes=40,
+                    color='red')
+    axs[2, 2].set_title('Direction du vent (cos)', fontsize=20)
+    sns.lineplot(x=X.index, y=X['dd_cos'], ax=axs[2, 2])
+    sns.scatterplot(x=X.index.max() + 1,
+                    y=y['dd_cos'],
+                    ax=axs[2, 2],
+                    sizes=40,
+                    color='red')
     print(fig)
-    print(y)
+
+
+def draw_station(X):
+    fig, axs = plt.subplots(3, 3, figsize=(25, 12))
+    fig.suptitle(f'Station', fontsize=30)
+    fig.tight_layout()
+    axs[0, 0].set_title('pression au niveau de la mer', fontsize=20)
+    sns.lineplot(x=X.index, y=X['pmer'] / 100, ax=axs[0, 0])
+
+    axs[0, 1].set_title('direction du vent', fontsize=20)
+    sns.lineplot(x=X.index, y=X['dd'], ax=axs[0, 1])
+
+    axs[0, 2].set_title('vitesse du vent', fontsize=20)
+    sns.lineplot(x=X.index, y=X['ff'], ax=axs[0, 2])
+
+    axs[1, 0].set_title('température', fontsize=20)
+    sns.lineplot(x=X.index, y=X['t'] - 273.15, ax=axs[1, 0])
+
+    axs[1, 1].set_title('humidité', fontsize=20)
+    sns.lineplot(x=X.index, y=X['u'], ax=axs[1, 1])
+
+    axs[1, 2].set_title('hauteur neige fraiche', fontsize=20)
+    sns.lineplot(x=X.index, y=X['ssfrai'], ax=axs[1, 2])
+
+    axs[2, 0].set_title('précipitation sur les 3 dernières heures',
+                        fontsize=20)
+    sns.lineplot(x=X.index, y=X['rr3'], ax=axs[2, 0])
+    axs[2, 1].set_title('direction du vent (sin)',
+                        fontsize=20)
+    sns.lineplot(x=X.index, y=X['dd_sin'], ax=axs[2, 1])
+    axs[2, 2].set_title('direction du vent (cos)',
+                        fontsize=20)
+    sns.lineplot(x=X.index, y=X['dd_cos'], ax=axs[2, 2])
+
+    print(fig)
