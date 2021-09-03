@@ -172,6 +172,21 @@ def draw_sample(X, y, n):
                     ax=axs[2, 0],
                     sizes=40,
                     color='red')
+    axs[2, 1].set_title('Direction du vent (sin)',
+                        fontsize=20)
+    sns.lineplot(x=X.index, y=X['dd_sin'], ax=axs[2, 1])
+    sns.scatterplot(x=X.index.max() + 1,
+                    y=y['dd_sin'],
+                    ax=axs[2, 1],
+                    sizes=40,
+                    color='red')
+    axs[2, 2].set_title('Direction du vent (cos)', fontsize=20)
+    sns.lineplot(x=X.index, y=X['dd_cos'], ax=axs[2, 2])
+    sns.scatterplot(x=X.index.max() + 1,
+                    y=y['dd_cos'],
+                    ax=axs[2, 2],
+                    sizes=40,
+                    color='red')
     print(fig)
 
 
