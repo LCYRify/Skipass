@@ -108,15 +108,7 @@ class DataSkipass:
         
         for df_new in list_new_df3[1:]:
             df = pd.concat([df,df_new])
-        # Replace NaN
-        # df = replace_nan_0(df, 'ff')
-        # df = replace_nan_most_frequent(df, 'dd')
-        # df = replace_nan_mean_2points(df, 'pmer')
-        # df = replace_nan_mean_2points(df, 't')
-        # df = replace_nan_mean_2points(df, 'u')
-        # df = replace_nan_mean_2points(df, 'ssfrai')
-        # df = replace_nan_mean_2points(df, 'rr3')
-        # convert dd in sin/cos
+        
         df['dd_sin'] = np.sin(2 * np.pi * df.dd / 360)
         df['dd_cos'] = np.cos(2 * np.pi * df.dd / 360)
         # convert t to °C
