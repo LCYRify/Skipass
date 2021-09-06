@@ -77,7 +77,7 @@ class DataSkipass:
         Output:
             Get a DF filtered without 'mq' and '/' values and a datetime type
         """
-        # get df   
+        # get df
         df = self.df[self.df.numer_sta.isin(params.Stations)][params.Col_select]
         # replace mq as nan
         df = df.replace("mq",value=replace_value)
@@ -89,24 +89,23 @@ class DataSkipass:
         # convert str as float
         for i in params.col_synop_float:
             df[i] = df[i].astype(float,errors='ignore')
-        # Replace NaN 
-        df = replace_nan_0(df, 'ff' )
+        return df
+
+    def replace_nan(self):
+        df = self.filter_data()
+        # Replace NaN
+        df = replace_nan_0(df, 'ff')
         df = replace_nan_most_frequent(df, 'dd')
-        df = replace_nan_mean_2points(df,'pmer')
-        df = replace_nan_mean_2points(df,'t')
-        df = replace_nan_mean_2points(df,'u')
-        df = replace_nan_mean_2points(df,'ssfrai')
-        df = replace_nan_mean_2points(df,'rr3')
+        df = replace_nan_mean_2points(df, 'pmer')
+        df = replace_nan_mean_2points(df, 't')
+        df = replace_nan_mean_2points(df, 'u')
+        df = replace_nan_mean_2points(df, 'ssfrai')
+        df = replace_nan_mean_2points(df, 'rr3')
         # convert dd in sin/cos
         df['dd_sin'] = np.sin(2 * np.pi * df.dd / 360)
         df['dd_cos'] = np.cos(2 * np.pi * df.dd / 360)
         # convert t to °C
         df['t'] = df['t'] - 273.15
-        return df
-
-    def replace_nan(self):
-        df = self.filter_data()
-        
         return df
 
     def split_set(self):
