@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pickle
 
 from tensorflow.keras.layers.experimental.preprocessing import Normalization
 from tensorflow.keras import Sequential, layers
@@ -19,7 +20,9 @@ IMPORTS FROM SKIPASS PACKAGE
 from Skipass.utils.DataCleaner import replace_values,delete_bad_measures,select_stations
 from Skipass.utils.df_typing import mf_date_conv_filtered, mf_date_totime
 from Skipass.station_filter.station_filter import station_filter_nivo,station_filter_synop, station_mapping
-from Skipass.utils.utils import sequence, splitdata, df_2_nparray, replace_nan_0, replace_nan_mean_2points, replace_nan_most_frequent
+#from Skipass.utils.utils import  
+from Skipass.utils.cleaner import replace_nan_0, replace_nan_mean_2points, replace_nan_most_frequent
+from Skipass.utils.split import create_subsample, sequence, splitdata, df_2_nparray
 import Skipass.params as params
 
 """
@@ -30,10 +33,8 @@ path_to_station_list = '../documentation/liste_stations_rawdata_synop.txt'
 
 class DataSkipass:
 
-    def __init__(self, filtered = False):
+    def __init__(self):
         self.df = self.create_df()
-        if filtered == True:
-            self.df = self.filter_data()
 
     """
     DATA CREATION
@@ -92,15 +93,29 @@ class DataSkipass:
         return df
 
     def replace_nan(self):
-        df = self.filter_data()
+        df_ = self.filter_data()
+        list_df = create_subsample(df_)
+        lm2p, lmf, l0 = params.extract_list_target()
+        
+        list_new_df1,list_new_df2,list_new_df3 = [],[],[]
+        for df in list_df:
+            list_new_df1.append(replace_nan_mean_2points(df,lm2p))
+        for df in list_new_df1:
+            list_new_df2.append(replace_nan_most_frequent(df,lmf))
+        for df in list_new_df2:
+            list_new_df3.append(replace_nan_0(df,l0))
+        df = list_new_df3[0]
+        
+        for df_new in list_new_df3[1:]:
+            df = pd.concat([df,df_new])
         # Replace NaN
-        df = replace_nan_0(df, 'ff')
-        df = replace_nan_most_frequent(df, 'dd')
-        df = replace_nan_mean_2points(df, 'pmer')
-        df = replace_nan_mean_2points(df, 't')
-        df = replace_nan_mean_2points(df, 'u')
-        df = replace_nan_mean_2points(df, 'ssfrai')
-        df = replace_nan_mean_2points(df, 'rr3')
+        # df = replace_nan_0(df, 'ff')
+        # df = replace_nan_most_frequent(df, 'dd')
+        # df = replace_nan_mean_2points(df, 'pmer')
+        # df = replace_nan_mean_2points(df, 't')
+        # df = replace_nan_mean_2points(df, 'u')
+        # df = replace_nan_mean_2points(df, 'ssfrai')
+        # df = replace_nan_mean_2points(df, 'rr3')
         # convert dd in sin/cos
         df['dd_sin'] = np.sin(2 * np.pi * df.dd / 360)
         df['dd_cos'] = np.cos(2 * np.pi * df.dd / 360)
@@ -154,3 +169,61 @@ class DataSkipass:
         eval = model.evaluate(X_test, y_test)
 
         return history,eval
+
+
+
+
+if __name__ == '__main__':
+    """
+    create df:
+    """ 
+    data = DataSkipass()
+    """
+    Split df:
+    """
+    X_train, y_train, X_valid, y_valid, X_test, y_test = data.split_X_y()
+    col = y_train[0].columns
+    X_train1, y_train1, X_valid1, y_valid1, X_test1, y_test1 = data.split_X_y()
+    """
+    Transform them to np array:
+    """
+    X_train,y_train = df_2_nparray(X_train,y_train)
+    X_valid, y_valid = df_2_nparray(X_valid, y_valid)
+    X_test, y_test = df_2_nparray(X_test, y_test)
+    """
+    Create model:
+    """
+    # normalization
+    norm = Normalization()
+    norm.adapt(X_train)
+    # dumping
+    with open("X_train.pkl","wb") as file:
+        pickle.dump(X_train, file)
+    with open("y_train.pkl","wb") as file:
+        pickle.dump(y_train, file)
+    # model creation
+    model = Sequential()
+    model.add(norm)
+    model.add(layers.GRU(384,activation = 'tanh', return_sequences=True))
+    model.add(layers.GRU(96,activation = 'tanh', return_sequences=True))
+    model.add(layers.GRU(96,activation= 'tanh'))
+    model.add(layers.Dense(100,activation = 'relu'))
+    model.add(layers.Dense(8,activation = 'linear'))
+    # model compilation
+    model.compile(loss = 'mse', optimizer = RMSprop(learning_rate=0.01), metrics = MAPE)
+    # Early Stopping creation
+    es = EarlyStopping(patience = 25, restore_best_weights = True)
+    # Fitting
+    history = model.fit(X_train,y_train, epochs = 1000, validation_data = (X_valid,y_valid), callbacks = [es])
+    # evaluation
+    eval = model.evaluate(X_test, y_test)   
+    # plots
+    plt.plot(history.history['val_loss'])
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_mean_absolute_percentage_error'])
+    plt.plot(history.history['mean_absolute_percentage_error'])
+    # predictions 
+    result = model.predict(X_test[0])
+    pd.DataFrame(y_test[0].reshape(1,8), columns=col)
+    pd.DataFrame(result[0].reshape(1,8),columns=col)
+    result[0].T.shape
