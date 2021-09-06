@@ -8,7 +8,7 @@ DATA PARAMS
 """
 REPLACE NAN STRATEGY:
 """
-
+#path_synop_file = ("gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}", nrows=1000)
 column_dict = {
     'date': ['ns', 'dat', 'date', 'na'],
     'numer_sta': ['ns', 'nt', 'numéro de station', 'na'],
