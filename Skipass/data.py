@@ -180,21 +180,46 @@ class DataSkipass:
 
 if __name__ == '__main__':
     """
+    GCP CONFIGURATION
+    """
+    # - - - GCP Project - - - 
+    PROJECT_ID='skipass-325207'
+    # - - - GCP Storage - - - 
+    BUCKET_NAME='skipass_325207_model'
+    REGION='europe-west1'
+    # - - - Data - - - 
+    BUCKET_TRAIN_DATA_PATH = 'skipass_325207_data/weather_synop_data.csv'
+    # - - - Model - - - 
+    MODEL_NAME = 'skipass'
+    MODEL_VERSION = 'v1'
+    
+    """
     create df:
     """
     data = DataSkipass()
+    print("Object created")
+    
+    """
+    Filter data:
+    """
+    df = data.replace_nan()
+    print("Data Clear")
+    
     """
     Split df:
     """
     X_train, y_train, X_valid, y_valid, X_test, y_test = data.split_X_y()
     col = y_train[0].columns
-    X_train1, y_train1, X_valid1, y_valid1, X_test1, y_test1 = data.split_X_y()
+    print("Split done")
+    
     """
     Transform them to np array:
     """
     X_train,y_train = df_2_nparray(X_train,y_train)
     X_valid, y_valid = df_2_nparray(X_valid, y_valid)
     X_test, y_test = df_2_nparray(X_test, y_test)
+    print("np array created")
+    
     """
     Create model:
     """
@@ -213,7 +238,7 @@ if __name__ == '__main__':
     model.add(layers.GRU(96,activation = 'tanh', return_sequences=True))
     model.add(layers.GRU(96,activation= 'tanh'))
     model.add(layers.Dense(100,activation = 'relu'))
-    model.add(layers.Dense(8,activation = 'linear'))
+    model.add(layers.Dense(9,activation = 'linear'))
     # model compilation
     model.compile(loss = 'mse', optimizer = RMSprop(learning_rate=0.01), metrics = MAPE)
     # Early Stopping creation
