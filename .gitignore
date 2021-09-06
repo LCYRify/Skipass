@@ -1,5 +1,4 @@
 notebooks/*
-*.pkl
 *.egg-info
 .coverage
 .ipynb_checkpoints

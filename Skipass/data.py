@@ -250,7 +250,7 @@ if __name__ == '__main__':
     model.add(layers.GRU(96,activation = 'tanh', return_sequences=True))
     model.add(layers.GRU(96,activation= 'tanh'))
     model.add(layers.Dense(100,activation = 'relu'))
-    model.add(layers.Dense(9,activation = 'linear'))
+    model.add(layers.Dense(8,activation = 'linear'))
     # model compilation
     model.compile(loss = 'mse', optimizer = RMSprop(learning_rate=0.01), metrics = MAPE)
     # Early Stopping creation
