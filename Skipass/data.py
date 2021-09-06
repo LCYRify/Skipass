@@ -112,16 +112,21 @@ class DataSkipass:
         # create sin and cos from wind direction
         df['dd_sin'] = np.sin(2 * np.pi * df.dd / 360)
         df['dd_cos'] = np.cos(2 * np.pi * df.dd / 360)
+
         # convert t to °C
         df['t'] = df['t'] - 273.15
-        # categorize rain
-        df = categorize_rain(df,'rr3')
+
         # compute pmer from temp, station pressure and Alt
         df['pmer'] = df.apply(
             lambda row: pmer_compute(row['t'], row['pres'], row['Altitude'])
             if pd.isnull(row['pmer']) else row['pmer'],
             axis=1)
+        # categorize rain
+        df['rr3'] = df.apply(lambda row: 0 if row['rr3'] < 4 else 1, axis=1)
+
         return df
+        #df = categorize_rain(df,'rr3')
+
 
     def split_set(self):
         """
