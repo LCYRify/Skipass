@@ -29,3 +29,43 @@ def T_mer_calc(serie, alt):
     DegM = 6.5
     Var = alt * DegM
     return (serie - Var)
+
+def categorize_rain(df, column_name):
+    df[column_name] = np.where(df[column_name] >= 4, 1, 0)
+
+"""
+Cleaner strategies:
+"""
+
+"""
+Replace by 0:
+"""
+def replace_nan_0(df, column_name):
+    df[column_name] = df[column_name].replace(np.nan,value=0)
+    return df
+
+"""
+Replace by mean of 2 proxi points:
+"""
+def replace_nan_first_last_elem(df,columns_name):
+    for column in columns_name:
+        if pd.isnull(df[column].iloc[0]) == True:
+            df[column].iloc[0]  = df[column].mean()
+        if pd.isnull(df[column].iloc[-1]) == True:
+            df[column].iloc[-1]  = df[column].mean()
+    return df
+
+def replace_nan_mean_2points(df, columns_name):
+    df = df.sort_values(['date'])
+    replace_nan_first_last_elem(df,columns_name)
+    for column in columns_name:
+        df[column] = pd.concat([df[column].ffill(), df[column].bfill()]).groupby(level=0).mean()
+    return df
+
+"""
+Replace by most frequent values
+"""
+def replace_nan_most_frequent(df,columns_name):
+    for column in columns_name:
+        df[column] = df[column].fillna(df[column].mode().iloc[0])
+    return df

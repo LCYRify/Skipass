@@ -32,13 +32,13 @@ all: clean install test black check_code
 
 count_lines:
 	@find ./ -name '*.py' -exec  wc -l {} \; | sort -n| awk \
-        '{printf "%4s %s\n", $$1, $$2}{s+=$$0}END{print s}'
+		'{printf "%4s %s\n", $$1, $$2}{s+=$$0}END{print s}'
 	@echo ''
 	@find ./scripts -name '*-*' -exec  wc -l {} \; | sort -n| awk \
-		        '{printf "%4s %s\n", $$1, $$2}{s+=$$0}END{print s}'
+				'{printf "%4s %s\n", $$1, $$2}{s+=$$0}END{print s}'
 	@echo ''
 	@find ./tests -name '*.py' -exec  wc -l {} \; | sort -n| awk \
-        '{printf "%4s %s\n", $$1, $$2}{s+=$$0}END{print s}'
+		'{printf "%4s %s\n", $$1, $$2}{s+=$$0}END{print s}'
 	@echo ''
 
 # ----------------------------------
@@ -53,3 +53,35 @@ pypi_test:
 
 pypi:
 	@twine upload dist/* -u $(PYPI_USERNAME)
+
+
+# ----------------------------------
+#      SETUP GCP
+# ----------------------------------
+# project id - replace with your GCP project id
+PROJECT_ID='skipass-325207'
+
+# bucket name - replace with your GCP bucket name
+BUCKET_NAME='skipass_325207_model'
+
+# choose your region from https://cloud.google.com/storage/docs/locations#available_locations
+REGION=europe-west1
+
+set_project:
+	@gcloud config set project ${PROJECT_ID}
+
+create_bucket:
+	@gsutil mb -l ${REGION} -p ${PROJECT_ID} gs://${BUCKET_NAME}
+
+# path to the file to upload to GCP (the path to the file should be absolute or should match the directory where the make command is ran)
+# replace with your local path to the `train_1k.csv` and make sure to put the path between quotes
+LOCAL_PATH="raw_data/weather_synop_data.csv"
+
+# bucket directory in which to store the uploaded file (`data` is an arbitrary name that we choose to use)
+BUCKET_FOLDER='skipass_325207_data'
+
+# name for the uploaded file inside of the bucket (we choose not to rename the file that we upload)
+BUCKET_FILE_NAME=$(shell basename ${LOCAL_PATH})
+
+upload_data:
+	@gsutil cp ${LOCAL_PATH} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}

@@ -56,3 +56,16 @@ sequence_train = 250
 sequence_test = int(sequence_train * 0.5)
 sequence_valid = int(sequence_train * 0.2)
 col_synop_float = Col_select[1:]
+
+
+def extract_list_target():
+    lm2p, lmf, l0 = [],[],[]
+    for key in column_dict.keys():
+        if column_dict[key][3] == 'replace_nan_mean_2points':
+            lm2p.append(key)
+        elif column_dict[key][3] == 'replace_nan_most_frequent':
+            lmf.append(key)
+        elif column_dict[key][3] == 'replace_replace_nan_0':
+            l0.append(key)
+    return lm2p, lmf, l0
+    
