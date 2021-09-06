@@ -126,29 +126,3 @@ def draw_station(X):
     sns.lineplot(x=X.index, y=X['dd_cos'], ax=axs[2, 2])
 
     print(fig)
-<<<<<<< HEAD
-
-<<<<<<< HEAD
-def replace_nan_0(df, column_name):
-    df[column_name] = df[column_name].replace(np.nan,value=0)
-    return df
-
-def replace_nan_mean_2points(df, column_name):
-    df.reset_index(drop=True)
-    df = df.sort_values(['numer_sta', 'date'])
-    df[column_name] = pd.concat([df['t'].ffill(), df['t'].bfill()]).groupby(level=0).mean()
-    df = df.sort_index()
-    return df.sort_index().sort_values(['date'])
-
-def replace_nan_most_frequent(df,column_name):
-    df[column_name] = df[column_name].fillna(df[column_name].mode().iloc[0])
-    return df
-
-def categorize_rain(df, column_name):
-    '''Transforme la colonne rrN en catégorielle (pluie):
-    1 si précipitation > 4mm, 0 si inférieur'''
-    df[column_name] = np.where(df[column_name] >= 4, 1, 0)
-=======
->>>>>>> 2810b2fdb83bd40a4add6c468aa3e4e2241f72bc
-=======
->>>>>>> 36d297e4e45b17132aa8976f868eaff536aaab98
