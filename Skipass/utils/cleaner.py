@@ -40,8 +40,9 @@ Cleaner strategies:
 """
 Replace by 0:
 """
-def replace_nan_0(df, column_name):
-    df[column_name] = df[column_name].replace(np.nan,value=0)
+def replace_nan_0(df, columns_name):
+    for column in columns_name:
+        df[column] = df[column].replace(np.nan, value=0)
     return df
 
 """
