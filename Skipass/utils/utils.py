@@ -126,4 +126,3 @@ def draw_station(X):
     sns.lineplot(x=X.index, y=X['dd_cos'], ax=axs[2, 2])
 
     print(fig)
-

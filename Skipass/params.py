@@ -10,21 +10,23 @@ REPLACE NAN STRATEGY:
 """
 
 column_dict = {
-    'date': ['ns', 'dat', 'date','na'],
-    'numer_sta': ['ns', 'nt', 'numéro de station','na'],
-    'Latitude': ['ns', 'nt', 'Latitude','na'],
-    'Longitude': ['ns', 'nt', 'Longitude','na'],
-    'Altitude': ['ns', 'int', 'Altitude','na'],
-    'pmer': ['ss', 'int', 'Pression au niveau de la mer', 'replace_nan_mean_2points'],
+    'date': ['ns', 'dat', 'date', 'na'],
+    'numer_sta': ['ns', 'nt', 'numéro de station', 'na'],
+    'Latitude': ['ns', 'nt', 'Latitude', 'na'],
+    'Longitude': ['ns', 'nt', 'Longitude', 'na'],
+    'Altitude': ['ns', 'int', 'Altitude', 'na'],
+    'pmer':
+    ['ss', 'int', 'Pression au niveau de la mer', 'replace_nan_mean_2points'],
     'dd': ['ss', 'int', 'Direction du vent', 'replace_nan_most_frequent'],
     'ff': ['ss', 'flt', 'Vitesse du vent', 'replace_nan_0'],
     't': ['ss', 'flt', 'Température', 'replace_nan_mean_2points'],
     'u': ['ss', 'int', 'Humidité', 'replace_nan_mean_2points'],
-    'ssfrai': ['rs', 'flt', 'Hauteur de neige fraiche', 'replace_nan_mean_2points'],
-    'rr3': ['ms', 'flt', 'Précipitation sur les 3 dernières heures', 'replace_nan_mean_2points'],
-    'dd_sin': ['ms', 'flt', 'Direction du vent (sin)','na'],
-    'dd_cos': ['ms', 'flt', 'Direction du vent (cos)','na'],
-    'pres':['ss', 'int', 'Pression à la station','na']
+    'ssfrai': ['rs', 'flt', 'Hauteur de neige fraiche', 'replace_nan_0'],
+    'rr3':
+    ['ms', 'flt', 'Précipitation sur les 3 dernières heures', 'replace_nan_0'],
+    'dd_sin': ['ms', 'flt', 'Direction du vent (sin)', 'na'],
+    'dd_cos': ['ms', 'flt', 'Direction du vent (cos)', 'na'],
+    'pres': ['ss', 'int', 'Pression à la station', 'na']
 }
 
 Dtype_col = {'int':[],'flt':[],'dat':[]}
@@ -47,7 +49,7 @@ Col_select = (Not_encoded + Num_col_standard + Num_col_robust +
               Num_col_minmax + Cat_col + Num_col_todrop)
 Col_improved = Col_select +  Num_col_engineer
 Col_base = (Num_col_standard + Num_col_robust + Num_col_minmax + Cat_col + Num_col_engineer)
-Stations = [7481,7650,7661,7690,7591,7577,7643]
+Stations = [7481, 7650, 7630, 7690, 7591, 7577, 7643]
 day_per_seq = 15
 obs_per_day = 24/3
 obs_per_seq = int(day_per_seq * obs_per_day)
@@ -65,7 +67,6 @@ def extract_list_target():
             lm2p.append(key)
         elif column_dict[key][3] == 'replace_nan_most_frequent':
             lmf.append(key)
-        elif column_dict[key][3] == 'replace_replace_nan_0':
+        elif column_dict[key][3] == 'replace_nan_0':
             l0.append(key)
     return lm2p, lmf, l0
-    

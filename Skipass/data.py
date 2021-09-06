@@ -20,8 +20,8 @@ IMPORTS FROM SKIPASS PACKAGE
 from Skipass.utils.DataCleaner import replace_values,delete_bad_measures,select_stations
 from Skipass.utils.df_typing import mf_date_conv_filtered, mf_date_totime
 from Skipass.station_filter.station_filter import station_filter_nivo,station_filter_synop, station_mapping
-#from Skipass.utils.utils import  
-from Skipass.utils.cleaner import replace_nan_0, replace_nan_mean_2points, replace_nan_most_frequent
+#from Skipass.utils.utils import
+from Skipass.utils.cleaner import replace_nan_0, replace_nan_mean_2points, replace_nan_most_frequent, pmer_compute
 from Skipass.utils.split import create_subsample, sequence, splitdata, df_2_nparray
 import Skipass.params as params
 
@@ -96,7 +96,7 @@ class DataSkipass:
         df_ = self.filter_data()
         list_df = create_subsample(df_)
         lm2p, lmf, l0 = params.extract_list_target()
-        
+
         list_new_df1,list_new_df2,list_new_df3 = [],[],[]
         for df in list_df:
             list_new_df1.append(replace_nan_mean_2points(df,lm2p))
@@ -105,14 +105,20 @@ class DataSkipass:
         for df in list_new_df2:
             list_new_df3.append(replace_nan_0(df,l0))
         df = list_new_df3[0]
-        
+
         for df_new in list_new_df3[1:]:
             df = pd.concat([df,df_new])
-        
+
+        # create sin and cos from wind direction
         df['dd_sin'] = np.sin(2 * np.pi * df.dd / 360)
         df['dd_cos'] = np.cos(2 * np.pi * df.dd / 360)
         # convert t to °C
         df['t'] = df['t'] - 273.15
+        # compute pmer from temp, station pressure and Alt
+        df['pmer'] = df.apply(
+            lambda row: pmer_compute(row['t'], row['pres'], row['Altitude'])
+            if pd.isnull(row['pmer']) else row['pmer'],
+            axis=1)
         return df
 
     def split_set(self):
@@ -168,7 +174,7 @@ class DataSkipass:
 if __name__ == '__main__':
     """
     create df:
-    """ 
+    """
     data = DataSkipass()
     """
     Split df:
@@ -208,13 +214,13 @@ if __name__ == '__main__':
     # Fitting
     history = model.fit(X_train,y_train, epochs = 1000, validation_data = (X_valid,y_valid), callbacks = [es])
     # evaluation
-    eval = model.evaluate(X_test, y_test)   
+    eval = model.evaluate(X_test, y_test)
     # plots
     plt.plot(history.history['val_loss'])
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_mean_absolute_percentage_error'])
     plt.plot(history.history['mean_absolute_percentage_error'])
-    # predictions 
+    # predictions
     result = model.predict(X_test[0])
     pd.DataFrame(y_test[0].reshape(1,8), columns=col)
     pd.DataFrame(result[0].reshape(1,8),columns=col)
