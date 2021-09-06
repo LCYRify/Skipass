@@ -6,7 +6,7 @@ DATA PARAMS
 """
 
 """
-REPLACE NAN STRATEGY: 
+REPLACE NAN STRATEGY:
 """
 
 column_dict = {
@@ -23,7 +23,8 @@ column_dict = {
     'ssfrai': ['rs', 'flt', 'Hauteur de neige fraiche', 'replace_nan_mean_2points'],
     'rr3': ['ms', 'flt', 'Précipitation sur les 3 dernières heures', 'replace_nan_mean_2points'],
     'dd_sin': ['ms', 'flt', 'Direction du vent (sin)','na'],
-    'dd_cos': ['ms', 'flt', 'Direction du vent (cos)','na']
+    'dd_cos': ['ms', 'flt', 'Direction du vent (cos)','na'],
+    'pres':['ss', 'int', 'Pression à la station','na']
 }
 
 Dtype_col = {'int':[],'flt':[],'dat':[]}
@@ -40,8 +41,10 @@ Num_col_standard = ['pmer','dd','ff','t','u']
 Num_col_robust = ['ssfrai']
 Num_col_minmax = ['rr3']
 Num_col_engineer = ['dd_sin','dd_cos']
+Num_col_todrop = ['pres']
 Cat_col = []
-Col_select = (Not_encoded + Num_col_standard + Num_col_robust + Num_col_minmax + Cat_col )
+Col_select = (Not_encoded + Num_col_standard + Num_col_robust +
+              Num_col_minmax + Cat_col + Num_col_todrop)
 Col_improved = Col_select +  Num_col_engineer
 Col_base = (Num_col_standard + Num_col_robust + Num_col_minmax + Cat_col + Num_col_engineer)
 Stations = [7481,7650,7661,7690,7591,7577,7643]
