@@ -97,6 +97,7 @@ class DataSkipass:
         list_df = create_subsample(df_)
         lm2p, lmf, l0 = params.extract_list_target()
 
+        # replace nan according to strategies
         list_new_df1,list_new_df2,list_new_df3 = [],[],[]
         for df in list_df:
             list_new_df1.append(replace_nan_mean_2points(df,lm2p))
@@ -113,14 +114,25 @@ class DataSkipass:
         df['dd_sin'] = np.sin(2 * np.pi * df.dd / 360)
         df['dd_cos'] = np.cos(2 * np.pi * df.dd / 360)
 
-        # convert t to °C
-        df['t'] = df['t'] - 273.15
-
         # compute pmer from temp, station pressure and Alt
         df['pmer'] = df.apply(
             lambda row: pmer_compute(row['t'], row['pres'], row['Altitude'])
             if pd.isnull(row['pmer']) else row['pmer'],
             axis=1)
+
+        list_df2 = create_subsample(df)
+
+        # replace nan for pmer
+        list_new_df4 = []
+        for df in list_df2:
+            list_new_df4.append(replace_nan_mean_2points(df, ['pmer']))
+        df = list_new_df4[0]
+        for df_new in list_new_df4[1:]:
+            df = pd.concat([df, df_new])
+
+        # convert K to °C
+        df['t'] = df['t'] - 273.15
+
         # categorize rain
         df['rr3'] = df.apply(lambda row: 0 if row['rr3'] < 4 else 1, axis=1)
 
@@ -182,36 +194,36 @@ if __name__ == '__main__':
     """
     GCP CONFIGURATION
     """
-    # - - - GCP Project - - - 
+    # - - - GCP Project - - -
     PROJECT_ID='skipass-325207'
-    # - - - GCP Storage - - - 
+    # - - - GCP Storage - - -
     BUCKET_NAME='skipass_325207_model'
     REGION='europe-west1'
-    # - - - Data - - - 
+    # - - - Data - - -
     BUCKET_TRAIN_DATA_PATH = 'skipass_325207_data/weather_synop_data.csv'
-    # - - - Model - - - 
+    # - - - Model - - -
     MODEL_NAME = 'skipass'
     MODEL_VERSION = 'v1'
-    
+
     """
     create df:
     """
     data = DataSkipass()
     print("Object created")
-    
+
     """
     Filter data:
     """
     df = data.replace_nan()
     print("Data Clear")
-    
+
     """
     Split df:
     """
     X_train, y_train, X_valid, y_valid, X_test, y_test = data.split_X_y()
     col = y_train[0].columns
     print("Split done")
-    
+
     """
     Transform them to np array:
     """
@@ -219,7 +231,7 @@ if __name__ == '__main__':
     X_valid, y_valid = df_2_nparray(X_valid, y_valid)
     X_test, y_test = df_2_nparray(X_test, y_test)
     print("np array created")
-    
+
     """
     Create model:
     """
@@ -238,7 +250,7 @@ if __name__ == '__main__':
     model.add(layers.GRU(96,activation = 'tanh', return_sequences=True))
     model.add(layers.GRU(96,activation= 'tanh'))
     model.add(layers.Dense(100,activation = 'relu'))
-    model.add(layers.Dense(9,activation = 'linear'))
+    model.add(layers.Dense(8,activation = 'linear'))
     # model compilation
     model.compile(loss = 'mse', optimizer = RMSprop(learning_rate=0.01), metrics = MAPE)
     # Early Stopping creation
