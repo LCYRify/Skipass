@@ -38,7 +38,8 @@ def sequence(df, lenght, target, sequence):
 
     for i in df.numer_sta.unique():
         d[int(i)] = df.loc[df.numer_sta == i].sort_values('date').reset_index(drop=True)
-
+    # import ipdb
+    # ipdb.set_trace()
     for i in d.keys():
         for j in range(sequence):
             df_sample, df_target = subsample_sequence(d[i], lenght, target)
@@ -76,6 +77,7 @@ def splitdata(df):
     Given the initial dataframe `df`, return a df_train, df_valid, df_test.
     df = dataframe
     """
+    df = df.sort_values('date')
 
     training_l = int(0.8 * len(df))
     test_l = len(df) - training_l
@@ -95,7 +97,6 @@ def random_trainsample(X, y, n):
     Given a list of sequence (X), a list of target(y), the number of sample(n)
     it return a dict of 10 samples and targets
     '''
-
     sequence_len = len(X)
     dictyX = {'X': [], 'y': []}
 
