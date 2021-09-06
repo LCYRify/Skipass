@@ -7,8 +7,6 @@ def pmer_compute(temperature, pression, altitude):
         altitude, en metre
         retourne la pression en Pascal
     '''
-    if np.nan in [temperature, pression, altitude]:
-        return 101400
     P = pression
     g = 9.81
     Cp = 1006
@@ -28,7 +26,7 @@ def T_mer_calc(serie, alt):
     alt = alt / 1000
     DegM = 6.5
     Var = alt * DegM
-    return (serie - Var)
+    return (serie + Var)
 
 def categorize_rain(df, column_name):
     df[column_name] = np.where(df[column_name] >= 4, 1, 0)
