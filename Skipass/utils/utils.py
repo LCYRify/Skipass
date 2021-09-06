@@ -240,4 +240,6 @@ def replace_nan_most_frequent(df,column_name):
     return df
 
 def categorize_rain(df, column_name):
+    '''Transforme la colonne rrN en catégorielle (pluie):
+    1 si précipitation > 4mm, 0 si inférieur'''
     df[column_name] = np.where(df[column_name] >= 4, 1, 0)
