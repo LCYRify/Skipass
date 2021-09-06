@@ -126,6 +126,7 @@ def draw_station(X):
     sns.lineplot(x=X.index, y=X['dd_cos'], ax=axs[2, 2])
 
     print(fig)
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 def replace_nan_0(df, column_name):
@@ -149,3 +150,5 @@ def categorize_rain(df, column_name):
     df[column_name] = np.where(df[column_name] >= 4, 1, 0)
 =======
 >>>>>>> 2810b2fdb83bd40a4add6c468aa3e4e2241f72bc
+=======
+>>>>>>> 36d297e4e45b17132aa8976f868eaff536aaab98
