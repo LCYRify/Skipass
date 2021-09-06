@@ -239,3 +239,5 @@ def replace_nan_most_frequent(df,column_name):
     df[column_name] = df[column_name].fillna(df[column_name].mode().iloc[0])
     return df
 
+def categorize_rain(df, column_name):
+    df[column_name] = np.where(df[column_name] >= 4, 1, 0)
