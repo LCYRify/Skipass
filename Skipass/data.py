@@ -2,9 +2,9 @@
 BASIC IMPORTS
 """
 from os import sep
+import os
 import pandas as pd
 import numpy as np
-from math import cos, sin
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pickle
@@ -35,10 +35,14 @@ import Skipass.params as params
 PATHS
 """
 
-path_to_data = 'gs://skipass_325207_model/skipass_325207_data/weather_synop_data.csv'
-path_to_station_list = 'gs://skipass_325207_model/skipass_325207_data/liste_stations_rawdata_synop.txt'
-#path_to_data = '/Users/devasou/code/LCYRify/Skipass/raw_data/weather_synop_data.csv'
-#path_to_station_list = '/Users/devasou/code/LCYRify/Skipass/documentation/liste_stations_rawdata_synop.txt'
+chemin = os.path.dirname(os.path.realpath('__file__'))
+path_CSV = chemin + '/../' + 'raw_data/weather_synop_data.csv'
+path_txt = chemin + '/../' + 'documentation/liste_stations_rawdata_synop.txt'
+
+# path_to_data = 'gs://skipass_325207_model/skipass_325207_data/weather_synop_data.csv'
+# path_to_station_list = 'gs://skipass_325207_model/skipass_325207_data/liste_stations_rawdata_synop.txt'
+path_to_data = path_CSV
+path_to_station_list = path_txt
 
 
 class DataSkipass:
@@ -92,7 +96,8 @@ class DataSkipass:
         """
         # get df
         df = self.create_df()
-        df = df[df.numer_sta.isin(params.Stations)][params.Col_select]
+        df = df[params.Col_select]
+        #df = df[df.numer_sta.isin(params.Stations)][params.Col_select]
         # replace mq as nan
         df = df.replace("mq",value=replace_value)
         df = df.replace("/",value=replace_value)
@@ -149,6 +154,22 @@ class DataSkipass:
         # categorize rain
         df['rr3'] = df.apply(lambda row: 0 if row['rr3'] < 4 else 1, axis=1)
 
+        # convert lat lon en cos sin
+        df.Latitude = np.radians(df.Latitude)
+        df.Longitude = np.radians(df.Longitude)
+        df['x'] = (np.cos(df.Latitude) * np.cos(df.Longitude))
+        df['y'] = (np.cos(df.Latitude) * np.sin(df.Longitude))
+        df['z'] = (np.sin(df.Latitude))
+        df.drop(columns=['Latitude', 'Longitude'], inplace=True)
+        df = df.astype({"numer_sta": int, "Altitude": int, "dd": int})
+
+        # scaling des datas en min max
+        scaler = MinMaxScaler()
+        df[['x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai', 'rr3', 'pres', 'dd_sin', 'dd_cos']] = \
+        scaler.fit_transform(df[['x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai', 'rr3', 'pres', 'dd_sin', 'dd_cos']])
+
+        df = df[df.numer_sta.isin(params.Stations)]
+
         return df
         #df = categorize_rain(df,'rr3')
 
@@ -171,38 +192,11 @@ class DataSkipass:
 
         return X_train, y_train, X_valid, y_valid, X_test, y_test
 
-    def create_model(self):
-        """
-        Input: subsample of df (train, valid, test)
-        Output: a fitted DL model and its evaluation values as a tuple
-        """
-        X_train, y_train, X_valid, y_valid, X_test, y_test = self.split_X_y()
-        X_train,y_train = df_2_nparray(X_train,y_train)
-        X_valid, y_valid = df_2_nparray(X_valid, y_valid)
-        X_test, y_test = df_2_nparray(X_test, y_test)
-        norm = Normalization()
-        norm.adapt(X_train)
-
-        model = Sequential()
-        model.add(norm)
-        model.add(layers.LSTM(50,activation = 'tanh', return_sequences=True))
-        model.add(layers.GRU(50,activation= 'tanh'))
-        model.add(layers.Dense(100,activation = 'relu'))
-        model.add(layers.Dense(7,activation = 'linear'))
-
-        model.compile(loss = 'mse', optimizer = RMSprop(), metrics = MAPE)
-
-        es = EarlyStopping(patience = 10, restore_best_weights = True)
-
-        history = model.fit(X_train,y_train, epochs = 2, validation_data = (X_valid,y_valid), callbacks = [es])
-
-        eval = model.evaluate(X_test, y_test)
-
-        return history,eval
-
     def run_test(self):
         df = self.replace_nan()
         df.set_index('date', inplace=True)
+
+        #important
         df.Latitude = np.radians(df.Latitude)
         df.Longitude = np.radians(df.Longitude)
         df['x'] = np.cos(df.Latitude) * np.cos(df.Longitude)
@@ -210,41 +204,30 @@ class DataSkipass:
         df['z'] = np.sin(df.Latitude)
         df.drop(columns=['Latitude', 'Longitude'], inplace=True)
         df = df.astype({"numer_sta": int, "Altitude": int, "dd": int})
-        df.numer_sta.unique()
-        df[df.numer_sta == 7630]
-        
-        scaler = MinMaxScaler()
-        df[['x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai', 'rr3', 'pres', 'dd_sin', 'dd_cos']] = \
-        scaler.fit_transform(df[['x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai', 'rr3', 'pres', 'dd_sin', 'dd_cos']])
-        
-        dataX = df[['numer_sta', 'x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai', 'rr3', 'pres', 'dd_sin', 'dd_cos']]
-        dataY = df[['numer_sta', 't']]
-        
+        #important
+
+
+        #df.numer_sta.unique()
+        # df[df.numer_sta == 7630]
+
+        #important
+
+        #important
+
+
+        # dataX = df[['numer_sta', 'x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai', 'rr3', 'pres', 'dd_sin', 'dd_cos']]
+        # dataY = df[['numer_sta', 't']]
+
         what_to_predict = [1]
         hist_window = 120 # 15 days * 8 measures per day
         horizon = len(what_to_predict)
         split = 0.8
         x_train, y_train, x_val, y_val = my_custom_ts_multi_data_prep(dataX, dataY, split, hist_window, horizon)
-        
+
         print(x_train.shape, y_train.shape, x_val.shape, y_val.shape)
         ind = np.random.randint(0, x_train.shape[0], 2)
 
-        fig, axs = plt.subplots(nrows=x_train.shape[2], ncols=2, sharex=True, figsize=(8, 20))
-        fig.suptitle('Two random samples \n [{:d} & {:d}]'.format(*ind))
 
-        the_range = [x+x_train.shape[1]-1 for x in what_to_predict]
-
-        for j in range(2):
-            for i in range(x_train.shape[2]):
-                axs[i, j].set_title(dataX.columns[i+1], fontsize=9)
-                axs[i, j].plot(x_train[ind[j], :, i])
-                if dataX.columns[i+1] == 't':
-                    axs[i, j].scatter(the_range, y_train[ind[j]])
-        
-        
-
-
-if __name__ == '__main__':
-    dsp = DataSkipass()
-    dsp.run_test()
-    
+# if __name__ == '__main__':
+#     dsp = DataSkipass()
+#     dsp.run_test()
