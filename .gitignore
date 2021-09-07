@@ -9,3 +9,4 @@ raw_data/
 **/__pycache__/
 .env
 scrapper/archive_data/
+meteo1/*

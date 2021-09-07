@@ -54,6 +54,9 @@ pypi_test:
 pypi:
 	@twine upload dist/* -u $(PYPI_USERNAME)
 
+run_grid:
+	@python -m Skipass.model.grid_search
+
 
 # ----------------------------------
 #      SETUP GCP

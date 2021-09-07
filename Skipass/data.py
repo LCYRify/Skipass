@@ -31,16 +31,18 @@ import Skipass.params as params
 """
 PATHS
 """
+
 path_to_data = 'gs://skipass_325207_model/skipass_325207_data/weather_synop_data.csv'
 path_to_station_list = 'gs://skipass_325207_model/skipass_325207_data/liste_stations_rawdata_synop.txt'
 #path_to_data = '/Users/devasou/code/LCYRify/Skipass/raw_data/weather_synop_data.csv'
 #path_to_station_list = '/Users/devasou/code/LCYRify/Skipass/documentation/liste_stations_rawdata_synop.txt'
 
+
 class DataSkipass:
 
     def __init__(self):
         pass
-        
+
     """
     DATA CREATION
     """
