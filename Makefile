@@ -61,51 +61,31 @@ run_grid:
 # ----------------------------------
 #      SETUP GCP
 # ----------------------------------
-# project id - replace with your GCP project id
+# Project and bucket variables
 PROJECT_ID='skipass-325207'
-
-# bucket name - replace with your GCP bucket name
 BUCKET_NAME='skipass_325207_model'
-
-# choose your region from https://cloud.google.com/storage/docs/locations#available_locations
+BUCKET_FOLDER='skipass_325207_data'
+BUCKET_TRAINING_FOLDER = 'skipass_325207_trainings'
+LOCAL_PATH="/Users/devasou/code/LCYRify/Skipass/documentation/liste_stations_rawdata_synop.txt"
 REGION=europe-west1
+BUCKET_FILE_NAME=$(shell basename ${LOCAL_PATH})
+# Requirements
+PYTHON_VERSION=3.7
+FRAMEWORK=scikit-learn
+RUNTIME_VERSION=2.5
+# Package params 
+PACKAGE_NAME=Skipass
+FILENAME=data
+# Job 
+JOB_NAME=skipass_$(shell date +'%Y%m%d_%H%M%S')
+
 
 set_project:
 	@gcloud config set project ${PROJECT_ID}
-
 create_bucket:
 	@gsutil mb -l ${REGION} -p ${PROJECT_ID} gs://${BUCKET_NAME}
-
-# path to the file to upload to GCP (the path to the file should be absolute or should match the directory where the make command is ran)
-# replace with your local path to the `train_1k.csv` and make sure to put the path between quotes
-LOCAL_PATH="../raw_data/weather_synop_data.csv"
-
-# bucket directory in which to store the uploaded file (`data` is an arbitrary name that we choose to use)
-BUCKET_FOLDER='skipass_325207_data'
-
-# name for the uploaded file inside of the bucket (we choose not to rename the file that we upload)
-BUCKET_FILE_NAME=$(shell basename ${LOCAL_PATH})
-
 upload_data:
 	@gsutil cp ${LOCAL_PATH} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}
-
-##### Training  - - - - - - - - - - - - - - - - - - - - - -
-# will store the packages uploaded to GCP for the training
-BUCKET_TRAINING_FOLDER = 'skipass_325207_model/skipass_325207_data'
-##### Model - - - - - - - - - - - - - - - - - - - - - - - -
-# not required here
-### GCP AI Platform - - - - - - - - - - - - - - - - - - - -
-##### Machine configuration - - - - - - - - - - - - - - - -
-REGION=europe-west1
-PYTHON_VERSION=3.7
-FRAMEWORK=scikit-learn
-RUNTIME_VERSION=1.15
-##### Package params  - - - - - - - - - - - - - - - - - - -
-PACKAGE_NAME=Skipass
-FILENAME=data
-##### Job - - - - - - - - - - - - - - - - - - - - - - - - -
-JOB_NAME=skipass_$(shell date +'%Y%m%d_%H%M%S')
-
 run_locally:
 	@python -m ${PACKAGE_NAME}.${FILENAME}
 

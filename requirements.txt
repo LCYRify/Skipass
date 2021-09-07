@@ -34,3 +34,6 @@ memoized-property
 termcolor
 jupyterlab
 folium
+
+# gcp
+joblib
