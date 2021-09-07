@@ -34,8 +34,8 @@ path_to_station_list = '../documentation/liste_stations_rawdata_synop.txt'
 class DataSkipass:
 
     def __init__(self):
-        self.df = self.create_df()
-
+        pass
+        
     """
     DATA CREATION
     """
@@ -79,7 +79,8 @@ class DataSkipass:
             Get a DF filtered without 'mq' and '/' values and a datetime type
         """
         # get df
-        df = self.df[self.df.numer_sta.isin(params.Stations)][params.Col_select]
+        df = self.create_df()
+        df = df[df.numer_sta.isin(params.Stations)][params.Col_select]
         # replace mq as nan
         df = df.replace("mq",value=replace_value)
         df = df.replace("/",value=replace_value)
