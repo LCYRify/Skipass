@@ -14,19 +14,7 @@ import keras_tuner as kt
 import tensorflow as tf
 from tensorflow import keras
 
-def model_run():
-
-    data = DataSkipass()
-
-    X_train, y_train, X_valid, y_valid, X_test, y_test = data.split_X_y()
-    col = y_train[0].columns
-
-    X_train, y_train = df_2_nparray(X_train, y_train)
-    X_valid, y_valid = df_2_nparray(X_valid, y_valid)
-    X_test, y_test = df_2_nparray(X_test, y_test)
-
-    norm = Normalization()
-    norm.adapt(X_train)
+def model_run(norm):
 
     model = Sequential()
     model.add(norm)
@@ -38,20 +26,32 @@ def model_run():
     model.add(layers.Dense(16, activation='relu'))
     model.add(layers.Dense(8, activation='linear'))
 
-    model.compile(loss='mae', optimizer=RMSprop(learning_rate=0.01), metrics=MSLE)
+    model.compile(loss='msle', optimizer=RMSprop(learning_rate=0.01), metrics=MAE)
 
-    es = EarlyStopping(patience=25, restore_best_weights=True)
+    return model
 
-    history = model.fit(X_train,
-                        y_train,
-                        epochs=1000,
-                        validation_data=(X_valid, y_valid),
-                        callbacks=[es])
+data = DataSkipass()
 
-    eval = model.evaluate(X_test, y_test)
+X_train, y_train, X_valid, y_valid, X_test, y_test = data.split_X_y()
+col = y_train[0].columns
 
-    result = model.predict(X_test[0])
+X_train, y_train = df_2_nparray(X_train, y_train)
+X_valid, y_valid = df_2_nparray(X_valid, y_valid)
+X_test, y_test = df_2_nparray(X_test, y_test)
 
-    return model, history, eval
+norm = Normalization()
+norm.adapt(X_train)
 
-model_run()
+model = model_run(norm)
+
+es = EarlyStopping(patience=25, restore_best_weights=True)
+
+history = model.fit(X_train,
+                    y_train,
+                    epochs=1000,
+                    validation_data=(X_valid, y_valid),
+                    callbacks=[es])
+
+loss, mae = model.evaluate(X_test, y_test, verbose=2)
+
+model.save('my_model')
