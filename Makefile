@@ -75,7 +75,7 @@ create_bucket:
 
 # path to the file to upload to GCP (the path to the file should be absolute or should match the directory where the make command is ran)
 # replace with your local path to the `train_1k.csv` and make sure to put the path between quotes
-LOCAL_PATH="/Users/devasou/code/LCYRify/Skipass/raw_data/weather_synop_data.csv"
+LOCAL_PATH="../raw_data/weather_synop_data.csv"
 
 # bucket directory in which to store the uploaded file (`data` is an arbitrary name that we choose to use)
 BUCKET_FOLDER='skipass_325207_data'
