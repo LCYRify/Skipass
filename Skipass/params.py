@@ -8,7 +8,6 @@ DATA PARAMS
 """
 REPLACE NAN STRATEGY:
 """
-
 column_dict = {
     'date': ['ns', 'dat', 'date', 'na'],
     'numer_sta': ['ns', 'nt', 'numéro de station', 'na'],

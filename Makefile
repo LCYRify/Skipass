@@ -75,7 +75,7 @@ create_bucket:
 
 # path to the file to upload to GCP (the path to the file should be absolute or should match the directory where the make command is ran)
 # replace with your local path to the `train_1k.csv` and make sure to put the path between quotes
-LOCAL_PATH="raw_data/weather_synop_data.csv"
+LOCAL_PATH="../raw_data/weather_synop_data.csv"
 
 # bucket directory in which to store the uploaded file (`data` is an arbitrary name that we choose to use)
 BUCKET_FOLDER='skipass_325207_data'
@@ -86,17 +86,32 @@ BUCKET_FILE_NAME=$(shell basename ${LOCAL_PATH})
 upload_data:
 	@gsutil cp ${LOCAL_PATH} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}
 
+##### Training  - - - - - - - - - - - - - - - - - - - - - -
+# will store the packages uploaded to GCP for the training
+BUCKET_TRAINING_FOLDER = 'skipass_325207_model/skipass_325207_data'
+##### Model - - - - - - - - - - - - - - - - - - - - - - - -
+# not required here
+### GCP AI Platform - - - - - - - - - - - - - - - - - - - -
+##### Machine configuration - - - - - - - - - - - - - - - -
+REGION=europe-west1
+PYTHON_VERSION=3.7
+FRAMEWORK=scikit-learn
+RUNTIME_VERSION=1.15
+##### Package params  - - - - - - - - - - - - - - - - - - -
+PACKAGE_NAME=Skipass
+FILENAME=data
+##### Job - - - - - - - - - - - - - - - - - - - - - - - - -
+JOB_NAME=skipass_$(shell date +'%Y%m%d_%H%M%S')
 
-# ----------------------------------
-#      SUBMIT TO GCP
-# ----------------------------------
+run_locally:
+	@python -m ${PACKAGE_NAME}.${FILENAME}
 
-gcloud-submit:
+gcp_submit_training:
 	gcloud ai-platform jobs submit training ${JOB_NAME} \
-    --job-dir gs://${BUCKET_NAME}/${BUCKET_TRAINING_FOLDER}  \
-    --package-path ${PACKAGE_NAME} \
-    --module-name ${PACKAGE_NAME}.${FILENAME} \
-    --python-version=${PYTHON_VERSION} \
-    --runtime-version=${RUNTIME_VERSION} \
-    --region ${REGION} \
-    --stream-logs
+		--job-dir gs://${BUCKET_NAME}/${BUCKET_TRAINING_FOLDER} \
+		--package-path ${PACKAGE_NAME} \
+		--module-name ${PACKAGE_NAME}.${FILENAME} \
+		--python-version=${PYTHON_VERSION} \
+		--runtime-version=${RUNTIME_VERSION} \
+		--region ${REGION} \
+		--stream-logs
