@@ -18,12 +18,11 @@ def model_run(norm):
 
     model = Sequential()
     model.add(norm)
-    model.add(layers.GRU(512, activation='tanh', return_sequences=True))
-    model.add(layers.GRU(256, activation='tanh', return_sequences=True))
-    model.add(layers.GRU(128, activation='tanh'))
-    model.add(layers.Dense(64, activation='relu'))
-    model.add(layers.Dense(32, activation='relu'))
-    model.add(layers.Dense(16, activation='relu'))
+    model.add(layers.GRU(960, activation='tanh', return_sequences=True))
+    model.add(layers.GRU(672, activation='tanh', return_sequences=True))
+    model.add(layers.GRU(96, activation='tanh'))
+    model.add(layers.Dense(424, activation='relu'))
+    model.add(layers.Dense(304, activation='relu'))
     model.add(layers.Dense(8, activation='linear'))
 
     model.compile(loss='msle', optimizer=RMSprop(learning_rate=0.01), metrics=MAE)
