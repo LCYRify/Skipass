@@ -74,3 +74,17 @@ def extract_list_target():
         elif column_dict[key][3] == 'replace_nan_0':
             l0.append(key)
     return lm2p, lmf, l0
+
+"""
+GCP CONFIGURATION
+"""
+# - - - GCP Project - - -
+PROJECT_ID='skipass-325207'
+# - - - GCP Storage - - -
+BUCKET_NAME='skipass_325207_model'
+REGION='europe-west1'
+# - - - Data - - -
+BUCKET_TRAIN_DATA_PATH = 'skipass_325207_data/weather_synop_data.csv'
+# - - - Model - - -
+MODEL_NAME = 'skipass'
+MODEL_VERSION = 'v1'
