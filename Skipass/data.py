@@ -28,8 +28,8 @@ import Skipass.params as params
 """
 PATHS
 """
-path_to_data = '/Users/devasou/code/LCYRify/Skipass/raw_data/weather_synop_data.csv'
-path_to_station_list = '/Users/devasou/code/LCYRify/Skipass/documentation/liste_stations_rawdata_synop.txt'
+path_to_data = '../raw_data/weather_synop_data.csv'
+path_to_station_list = '../documentation/liste_stations_rawdata_synop.txt'
 
 class DataSkipass:
 
