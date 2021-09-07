@@ -85,3 +85,18 @@ BUCKET_FILE_NAME=$(shell basename ${LOCAL_PATH})
 
 upload_data:
 	@gsutil cp ${LOCAL_PATH} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}
+
+
+# ----------------------------------
+#      SUBMIT TO GCP
+# ----------------------------------
+
+gcloud-submit:
+	gcloud ai-platform jobs submit training ${JOB_NAME} \
+    --job-dir gs://${BUCKET_NAME}/${BUCKET_TRAINING_FOLDER}  \
+    --package-path ${PACKAGE_NAME} \
+    --module-name ${PACKAGE_NAME}.${FILENAME} \
+    --python-version=${PYTHON_VERSION} \
+    --runtime-version=${RUNTIME_VERSION} \
+    --region ${REGION} \
+    --stream-logs
