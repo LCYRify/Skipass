@@ -4,12 +4,14 @@ BASIC IMPORTS
 from os import sep
 import pandas as pd
 import numpy as np
+from math import cos, sin
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pickle
 import joblib
 from google.cloud import storage
 
+from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.layers.experimental.preprocessing import Normalization
 from tensorflow.keras import Sequential, layers
 from tensorflow.keras.optimizers import RMSprop
@@ -23,8 +25,9 @@ from Skipass.utils.DataCleaner import replace_values,delete_bad_measures,select_
 from Skipass.utils.df_typing import mf_date_conv_filtered, mf_date_totime
 from Skipass.station_filter.station_filter import station_filter_nivo,station_filter_synop, station_mapping
 #from Skipass.utils.utils import
-from Skipass.utils.cleaner import replace_nan_0, replace_nan_mean_2points, replace_nan_most_frequent, pmer_compute, categorize_rain
+from Skipass.utils.cleaner import replace_nan_0, replace_nan_mean_2points, replace_nan_most_frequent, pmer_compute, categorize_rain, my_custom_ts_multi_data_prep
 from Skipass.utils.split import create_subsample, sequence, splitdata, df_2_nparray
+#from Skipass.grid import model_test
 from Skipass.utils.utils import save_model
 import Skipass.params as params
 
@@ -197,81 +200,51 @@ class DataSkipass:
 
         return history,eval
 
+    def run_test(self):
+        df = self.replace_nan()
+        df.set_index('date', inplace=True)
+        df.Latitude = np.radians(df.Latitude)
+        df.Longitude = np.radians(df.Longitude)
+        df['x'] = np.cos(df.Latitude) * np.cos(df.Longitude)
+        df['y'] = np.cos(df.Latitude) * np.sin(df.Longitude)
+        df['z'] = np.sin(df.Latitude)
+        df.drop(columns=['Latitude', 'Longitude'], inplace=True)
+        df = df.astype({"numer_sta": int, "Altitude": int, "dd": int})
+        df.numer_sta.unique()
+        df[df.numer_sta == 7630]
+        
+        scaler = MinMaxScaler()
+        df[['x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai', 'rr3', 'pres', 'dd_sin', 'dd_cos']] = \
+        scaler.fit_transform(df[['x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai', 'rr3', 'pres', 'dd_sin', 'dd_cos']])
+        
+        dataX = df[['numer_sta', 'x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai', 'rr3', 'pres', 'dd_sin', 'dd_cos']]
+        dataY = df[['numer_sta', 't']]
+        
+        what_to_predict = [1]
+        hist_window = 120 # 15 days * 8 measures per day
+        horizon = len(what_to_predict)
+        split = 0.8
+        x_train, y_train, x_val, y_val = my_custom_ts_multi_data_prep(dataX, dataY, split, hist_window, horizon)
+        
+        print(x_train.shape, y_train.shape, x_val.shape, y_val.shape)
+        ind = np.random.randint(0, x_train.shape[0], 2)
 
+        fig, axs = plt.subplots(nrows=x_train.shape[2], ncols=2, sharex=True, figsize=(8, 20))
+        fig.suptitle('Two random samples \n [{:d} & {:d}]'.format(*ind))
+
+        the_range = [x+x_train.shape[1]-1 for x in what_to_predict]
+
+        for j in range(2):
+            for i in range(x_train.shape[2]):
+                axs[i, j].set_title(dataX.columns[i+1], fontsize=9)
+                axs[i, j].plot(x_train[ind[j], :, i])
+                if dataX.columns[i+1] == 't':
+                    axs[i, j].scatter(the_range, y_train[ind[j]])
+        
+        
 
 
 if __name__ == '__main__':
-    """
-    GCP CONFIGURATION
-    """
-    # - - - GCP Project - - -
-    PROJECT_ID='skipass-325207'
-    # - - - GCP Storage - - -
-    BUCKET_NAME='skipass_325207_model'
-    REGION='europe-west1'
-    # - - - Data - - -
-    BUCKET_TRAIN_DATA_PATH = 'skipass_325207_data/weather_synop_data.csv'
-    # - - - Model - - -
-    MODEL_NAME = 'skipass'
-    MODEL_VERSION = 'v1'
-
-    """
-    create df:
-    """
     dsp = DataSkipass()
-    print("Object created")
-
-    """
-    Filter data and split df:
-    """
-    X_train, y_train, X_valid, y_valid, X_test, y_test = dsp.split_X_y()
-    col = y_train[0].columns
-    print("Data filtered and splited")
-
-    """
-    Transform them to np array:
-    """
-    X_train,y_train = df_2_nparray(X_train,y_train)
-    X_valid, y_valid = df_2_nparray(X_valid, y_valid)
-    X_test, y_test = df_2_nparray(X_test, y_test)
-    print("np array created")
-
-    """
-    Create model:
-    """
-    # normalization
-    norm = Normalization()
-    norm.adapt(X_train)
-    # dumping
-    with open("X_train.pkl","wb") as file:
-        pickle.dump(X_train, file)
-    with open("y_train.pkl","wb") as file:
-        pickle.dump(y_train, file)
-    # model creation
-    model = Sequential()
-    model.add(norm)
-    model.add(layers.GRU(384,activation = 'tanh', return_sequences=True))
-    model.add(layers.GRU(96,activation = 'tanh', return_sequences=True))
-    model.add(layers.GRU(96,activation= 'tanh'))
-    model.add(layers.Dense(100,activation = 'relu'))
-    model.add(layers.Dense(8,activation = 'linear'))
-    # model compilation
-    model.compile(loss = 'mse', optimizer = RMSprop(learning_rate=0.01), metrics = MAPE)
-    # Early Stopping creation
-    es = EarlyStopping(patience = 1, restore_best_weights = True)
-    # Fitting
-    history = model.fit(X_train,y_train, epochs = 3, validation_data = (X_valid,y_valid), callbacks = [es])
-    # evaluation
-    eval = model.evaluate(X_test, y_test)
-    # plots
-    plt.plot(history.history['val_loss'])
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_mean_absolute_percentage_error'])
-    plt.plot(history.history['mean_absolute_percentage_error'])
-    # predictions
-    result = model.predict(X_test[0])
-    pd.DataFrame(y_test[0].reshape(1,8), columns=col)
-    pd.DataFrame(result[0].reshape(1,8),columns=col)
-    result[0].T.shape
-    save_model(history)
+    dsp.run_test()
     
