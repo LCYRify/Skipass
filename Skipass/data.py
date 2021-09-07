@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pickle
+import joblib
+from google.cloud import storage
 
 from tensorflow.keras.layers.experimental.preprocessing import Normalization
 from tensorflow.keras import Sequential, layers
@@ -23,13 +25,16 @@ from Skipass.station_filter.station_filter import station_filter_nivo,station_fi
 #from Skipass.utils.utils import
 from Skipass.utils.cleaner import replace_nan_0, replace_nan_mean_2points, replace_nan_most_frequent, pmer_compute, categorize_rain
 from Skipass.utils.split import create_subsample, sequence, splitdata, df_2_nparray
+from Skipass.utils.utils import save_model
 import Skipass.params as params
 
 """
 PATHS
 """
-path_to_data = '../raw_data/weather_synop_data.csv'
-path_to_station_list = '../documentation/liste_stations_rawdata_synop.txt'
+path_to_data = 'gs://skipass_325207_model/skipass_325207_data/weather_synop_data.csv'
+path_to_station_list = 'gs://skipass_325207_model/skipass_325207_data/liste_stations_rawdata_synop.txt'
+#path_to_data = '/Users/devasou/code/LCYRify/Skipass/raw_data/weather_synop_data.csv'
+#path_to_station_list = '/Users/devasou/code/LCYRify/Skipass/documentation/liste_stations_rawdata_synop.txt'
 
 class DataSkipass:
 
@@ -44,6 +49,7 @@ class DataSkipass:
         """
         Output (Pandas Dataframe containing Synop data):
         """
+        print('Importing data')
         return pd.read_csv(path_to_data)
 
     def import_list_stations(self):
@@ -52,6 +58,7 @@ class DataSkipass:
             ID;Nom;Latitude;Longitude;Altitude
             07510;BORDEAUX-MERIGNAC;44.830667;-0.691333;47
         """
+        print('Importing station list')
         return pd.read_csv(path_to_station_list, sep=';')
 
     def create_df(self):
@@ -66,7 +73,7 @@ class DataSkipass:
         df_stations = df_stations.rename(columns={'ID': 'numer_sta'})
         # Merge on station numbers
         df = df_stations.merge(df_data, on='numer_sta')
-
+        print('DF created')
         return df
 
     """
@@ -209,21 +216,15 @@ if __name__ == '__main__':
     """
     create df:
     """
-    data = DataSkipass()
+    dsp = DataSkipass()
     print("Object created")
 
     """
-    Filter data:
+    Filter data and split df:
     """
-    df = data.replace_nan()
-    print("Data Clear")
-
-    """
-    Split df:
-    """
-    X_train, y_train, X_valid, y_valid, X_test, y_test = data.split_X_y()
+    X_train, y_train, X_valid, y_valid, X_test, y_test = dsp.split_X_y()
     col = y_train[0].columns
-    print("Split done")
+    print("Data filtered and splited")
 
     """
     Transform them to np array:
@@ -255,9 +256,9 @@ if __name__ == '__main__':
     # model compilation
     model.compile(loss = 'mse', optimizer = RMSprop(learning_rate=0.01), metrics = MAPE)
     # Early Stopping creation
-    es = EarlyStopping(patience = 25, restore_best_weights = True)
+    es = EarlyStopping(patience = 1, restore_best_weights = True)
     # Fitting
-    history = model.fit(X_train,y_train, epochs = 1000, validation_data = (X_valid,y_valid), callbacks = [es])
+    history = model.fit(X_train,y_train, epochs = 3, validation_data = (X_valid,y_valid), callbacks = [es])
     # evaluation
     eval = model.evaluate(X_test, y_test)
     # plots
@@ -270,3 +271,5 @@ if __name__ == '__main__':
     pd.DataFrame(y_test[0].reshape(1,8), columns=col)
     pd.DataFrame(result[0].reshape(1,8),columns=col)
     result[0].T.shape
+    save_model(history)
+    

@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import joblib
+from google.cloud import storage
 
 
 def mf_date_totime(df):
@@ -126,3 +128,24 @@ def draw_station(X):
     sns.lineplot(x=X.index, y=X['dd_cos'], ax=axs[2, 2])
 
     print(fig)
+
+def upload_model_to_gcp():
+    STORAGE_LOCATION = 'skipass_325207_model/model.joblib'
+    BUCKET_NAME='skipass_325207_model'
+    client = storage.Client()
+    bucket = client.bucket(BUCKET_NAME)
+    blob = bucket.blob(STORAGE_LOCATION)
+    blob.upload_from_filename('model.joblib')
+
+def save_model(reg):
+    STORAGE_LOCATION = 'skipass_325207_model/model.joblib'
+    """method that saves the model into a .joblib file and uploads it on Google Storage /models folder
+    HINTS : use joblib library and google-cloud-storage"""
+    # saving the trained model to disk is mandatory to then beeing able to upload it to storage
+    # Implement here
+    joblib.dump(reg, 'model.joblib')
+    print("saved model.joblib locally")
+    # Implement here
+    upload_model_to_gcp()
+    print(f"uploaded model.joblib to gcp cloud storage under \n => {STORAGE_LOCATION}")
+
