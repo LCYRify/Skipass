@@ -50,7 +50,7 @@ Col_improved = Col_select +  Num_col_engineer
 Col_base = (Num_col_standard + Num_col_robust + Num_col_minmax + Cat_col + Num_col_engineer)
 Stations = [
     7481, 7650, 7630, 7690, 7577, 7643, 7460, 7280, 7255, 7240, 7510,
-    7434, 7299, 7222
+    7434, 7299, 7222, 7149, 7130, 7110, 7015
 ]
 #Stations = [7481, 7650, 7630, 7690, 7591, 7577, 7643]
 #Stations = [7481]
@@ -58,7 +58,7 @@ day_per_seq = 7
 obs_per_day = 24/3
 obs_per_seq = int(day_per_seq * obs_per_day)
 target = 8
-sequence_train = 2000
+sequence_train = 2500
 sequence_test = int(sequence_train * 0.5)
 sequence_valid = int(sequence_train * 0.2)
 col_synop_float = Col_select[1:]

@@ -22,57 +22,22 @@ class model_test(kt.HyperModel):
     def build(self, hp):
         model = Sequential()
 
-        hp_GRU_units1 = hp.Int('GRU unit1',
-                               min_value=128,
-                               max_value=512,
-                               step=32)
-        hp_GRU_units2 = hp.Int('GRU unit2',
-                               min_value=64,
-                               max_value=512,
-                               step=64)
-        hp_GRU_units3 = hp.Int('GRU unit3',
-                               min_value=32,
-                               max_value=512,
-                               step=32)
-        hp_GRU_units4 = hp.Int('GRU unit3',
-                               min_value=32,
-                               max_value=512,
-                               step=32)
-        hp_Dense_unit1 = hp.Int('hp_Dense_unit1',
-                                min_value=64,
-                                max_value=256,
-                                step=16)
-        hp_Dense_unit2 = hp.Int('hp_Dense_unit2',
-                                min_value=64,
-                                max_value=256,
-                                step=16)
-        hp_Dense_unit3 = hp.Int('hp_Dense_unit3',
-                                min_value=16,
-                                max_value=128,
-                                step=8)
-        hp_learning_rate = hp.Choice('learning_rate',
-                                     values=[1e-2, 1e-3, 1e-4, 1e-5])
+        hp_GRU_units1 = hp.Int('GRU unit1', min_value=128, max_value=512, step=32)
+        hp_GRU_units2 = hp.Int('GRU unit2', min_value=64, max_value=512, step=64)
+        hp_GRU_units3 = hp.Int('GRU unit3', min_value=64, max_value=512, step=32)
+        hp_GRU_units4 = hp.Int('GRU unit4', min_value=64, max_value=512, step=32)
+        hp_GRU_units5 = hp.Int('GRU unit5', min_value=64, max_value=512, step=32)
+        hp_Dense_unit1 = hp.Int('hp_Dense_unit1', min_value=16, max_value=256, step=16)
+        hp_learning_rate = hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4, 1e-5])
         hp_dense_activation = hp.Choice('dense activation',values=['relu','swish','selu'])
         hp_GRU_activation = hp.Choice('gru_activation', values=['tanh'])
 
-        model.add(
-            layers.GRU(units=hp_GRU_units2,
-                       activation=hp_GRU_activation,
-                       return_sequences=True))
-        model.add(
-            layers.GRU(units=hp_GRU_units1,
-                       activation=hp_GRU_activation,
-                       return_sequences=True))
-        model.add(
-            layers.GRU(units=hp_GRU_units3,
-                       activation=hp_GRU_activation,
-                       return_sequences=True))
-        model.add(layers.GRU(units=hp_GRU_units4,
-                             activation=hp_GRU_activation))
-        model.add(
-            layers.Dense(units=hp_Dense_unit1, activation=hp_dense_activation))
-        model.add(
-            layers.Dense(units=hp_Dense_unit2, activation=hp_dense_activation))
+        model.add(layers.GRU(units=hp_GRU_units1, activation=hp_GRU_activation, return_sequences=True))
+        model.add(layers.GRU(units=hp_GRU_units2, activation=hp_GRU_activation, return_sequences=True))
+        model.add(layers.GRU(units=hp_GRU_units3, activation=hp_GRU_activation, return_sequences=True))
+        model.add(layers.GRU(units=hp_GRU_units4, activation=hp_GRU_activation, return_sequences=True))
+        model.add(layers.GRU(units=hp_GRU_units5, activation=hp_GRU_activation))
+        model.add(layers.Dense(units=hp_Dense_unit1, activation=hp_dense_activation))
         model.add(layers.Dense(8, activation='linear'))
 
         model.compile(loss=MAE,
@@ -98,12 +63,7 @@ def hyperband_try():
     print('La baseline mse est de : ' + str(baseline_mse(X_train, y_train)))
     print('La baseline mae est de : ' + str(baseline_mae(X_train, y_train)))
 
-    test_predict_X = X_train[0]
-    test_predict_y = y_train[0]
-
     del X_train, X_valid, X_test, df_scaled, df
-
-    col = y_train[0].columns
 
     X_train, y_train = df_2_nparray(X_train_scaled, y_train)
     X_valid, y_valid = df_2_nparray(X_valid_scaled, y_valid)
@@ -146,12 +106,7 @@ def Bayesian_try():
     print('La baseline mse est de : ' + str(baseline_mse(X_train, y_train)))
     print('La baseline mae est de : ' + str(baseline_mae(X_train, y_train)))
 
-    test_predict_X = X_train[0]
-    test_predict_y = y_train[0]
-
     del X_train, X_valid, X_test, df_scaled, df
-
-    col = y_train[0].columns
 
     X_train, y_train = df_2_nparray(X_train_scaled, y_train)
     X_valid, y_valid = df_2_nparray(X_valid_scaled, y_valid)
