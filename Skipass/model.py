@@ -1,6 +1,9 @@
 from Skipass.data import DataSkipass
 import Skipass.params as params
+from Skipass.utils.utils import save_model
 from Skipass.utils.split import df_2_nparray
+from Skipass.utils.utils import save_model
+from Skipass.gcp import storage_upload
 from tensorflow.keras.layers.experimental.preprocessing import Normalization
 from tensorflow.keras import Sequential, layers
 from tensorflow.keras.optimizers import RMSprop
@@ -8,9 +11,7 @@ from tensorflow.keras.metrics import MAPE, MSE, MSLE, MAE
 from tensorflow.keras.callbacks import EarlyStopping
 import matplotlib.pyplot as plt
 import pandas as pd
-import pickle
 import numpy as np
-import keras_tuner as kt
 import tensorflow as tf
 from tensorflow import keras
 
@@ -43,14 +44,13 @@ norm.adapt(X_train)
 
 model = model_run(norm)
 
-es = EarlyStopping(patience=25, restore_best_weights=True)
+es = EarlyStopping(patience=1, restore_best_weights=True)
 
 history = model.fit(X_train,
                     y_train,
-                    epochs=1000,
+                    epochs=1,
                     validation_data=(X_valid, y_valid),
                     callbacks=[es])
 
 loss, mae = model.evaluate(X_test, y_test, verbose=2)
-
-model.save('my_model')
+storage_upload(history)

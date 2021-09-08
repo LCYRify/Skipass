@@ -75,7 +75,7 @@ FRAMEWORK=scikit-learn
 RUNTIME_VERSION=2.5
 # Package params 
 PACKAGE_NAME=Skipass
-FILENAME=data
+FILENAME=model
 # Job 
 JOB_NAME=skipass_$(shell date +'%Y%m%d_%H%M%S')
 
@@ -97,4 +97,6 @@ gcp_submit_training:
 		--python-version=${PYTHON_VERSION} \
 		--runtime-version=${RUNTIME_VERSION} \
 		--region ${REGION} \
+		--scale-tier CUSTOM \
+		--master-machine-type n1-standard-32 \
 		--stream-logs
