@@ -41,6 +41,49 @@ path_txt = chemin + '/../' + 'documentation/liste_stations_rawdata_synop.txt'
 path_to_data = path_CSV
 path_to_station_list = path_txt
 
+def fill_missing(df):
+
+    df = df.drop_duplicates()
+
+    df_full = []
+
+    for i in df.numer_sta.unique():
+        df2 = df[df.numer_sta == i]
+        alt = df2.Altitude.mean()
+        lat = df2.Latitude.mean()
+        lon = df2.Longitude.mean()
+        start_date = df2.date.min()
+        end_date = df2.date.max()
+        all_date = pd.date_range(start_date, end_date, freq='3H')
+        all_date = pd.DataFrame({'date': all_date})
+        all_date['numer_sta'] = i
+        all_date['Altitude'] = alt
+        all_date['Latitude'] = lat
+        all_date['Longitude'] = lon
+        df_full.append(pd.merge(df2, all_date, how="outer", on="date"))
+
+    df = pd.DataFrame()
+    for i in df_full:
+        df = pd.concat([df,i])
+
+    df.numer_sta_x = df.numer_sta_y
+    df = df.drop(columns='numer_sta_y')
+    df = df.rename(columns={'numer_sta_x': 'numer_sta'})
+
+    df.Altitude_x = df.Altitude_y
+    df = df.drop(columns='Altitude_y')
+    df = df.rename(columns={'Altitude_x': 'Altitude'})
+
+    df.Latitude_x = df.Latitude_y
+    df = df.drop(columns='Latitude_y')
+    df = df.rename(columns={'Latitude_x': 'Latitude'})
+
+    df.Longitude_x = df.Longitude_y
+    df = df.drop(columns='Longitude_y')
+    df = df.rename(columns={'Longitude_x': 'Longitude'})
+
+    return df
+
 
 def filter_data(df, replace_value = np.nan):
     """
