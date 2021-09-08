@@ -1,6 +1,28 @@
 import pandas as pd
 import numpy as np
 
+
+
+'''
+
+'''
+
+
+
+
+
+
+
+
+
+
+
+
+'''
+Features Engineering:
+'''
+
+
 def pmer_compute(temperature, pression, altitude):
     ''' Serie_temperature, température en C ou K
         serie_pression, en pascal
@@ -72,17 +94,17 @@ def replace_nan_most_frequent(df,columns_name):
 def my_custom_ts_multi_data_prep(dataset, target, split, window, horizon):
     Xt, Xv, yt, yv, X, y = [], [], [], [], [], []
     start = window
-    
+
     # Let's do a sequencing per station (same x, y, z & altitude)
     for i_station in dataset.numer_sta.unique():
         sub_dataset = dataset[dataset.numer_sta == i_station].copy()
         sub_dataset.drop(columns=['numer_sta'], inplace=True)
-        
+
         sub_target = target[target.numer_sta == i_station].copy()
         sub_target.drop(columns=['numer_sta'], inplace=True)
-        
+
         print("station {:d} has {:d} time steps".format(i_station, len(sub_dataset)))
-    
+
         end = len(sub_dataset) - horizon + 1
 
         for i in range(start, end):
@@ -91,17 +113,17 @@ def my_custom_ts_multi_data_prep(dataset, target, split, window, horizon):
 
             indicey = range(i, i+horizon)
             y.append(sub_target.iloc[indicey].to_numpy())
-            
+
         sub_split = int(0.8*(end-start))
         print("  ... pushing {} elements in training set and {:d} in validation set".format(sub_split-1, end-start-sub_split+1))
-        
+
         Xt += X[:sub_split]
         yt += y[:sub_split]
         Xv += X[sub_split:]
         yv += y[sub_split:]
         print("  ... training set has {:d} elements and validation set {:d}\n".format(len(Xt), len(Xv)))
-        
+
         X.clear()
         y.clear()
-            
+
     return np.array(Xt), np.array(yt), np.array(Xv), np.array(yv)
