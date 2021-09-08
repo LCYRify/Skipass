@@ -1,0 +1,179 @@
+from tensorflow.python.keras.activations import swish
+from Skipass.data import DataSkipass
+from Skipass.utils.split import df_2_nparray
+from Skipass.utils.preprocessing import fill_missing, filter_data, replace_nan, split_X_y
+from Skipass.utils.evaluation import baseline_mae, baseline_mse
+from tensorflow.keras import Sequential, layers
+from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.metrics import MAPE, MSE, MSLE, MAE
+from tensorflow.keras.callbacks import EarlyStopping
+from keras_tuner import Hyperband, BayesianOptimization
+import pandas as pd
+import pickle
+import numpy as np
+import keras_tuner as kt
+
+
+
+class model_test(kt.HyperModel):
+    def __init__(self):
+        self.name = 'grid'
+
+    def build(self, hp):
+        model = Sequential()
+
+        hp_GRU_units1 = hp.Int('GRU unit1',
+                               min_value=128,
+                               max_value=512,
+                               step=32)
+        hp_GRU_units2 = hp.Int('GRU unit2',
+                               min_value=64,
+                               max_value=512,
+                               step=64)
+        hp_GRU_units3 = hp.Int('GRU unit3',
+                               min_value=32,
+                               max_value=512,
+                               step=32)
+        hp_GRU_units4 = hp.Int('GRU unit3',
+                               min_value=32,
+                               max_value=512,
+                               step=32)
+        hp_Dense_unit1 = hp.Int('hp_Dense_unit1',
+                                min_value=64,
+                                max_value=256,
+                                step=16)
+        hp_Dense_unit2 = hp.Int('hp_Dense_unit2',
+                                min_value=64,
+                                max_value=256,
+                                step=16)
+        hp_Dense_unit3 = hp.Int('hp_Dense_unit3',
+                                min_value=16,
+                                max_value=128,
+                                step=8)
+        hp_learning_rate = hp.Choice('learning_rate',
+                                     values=[1e-2, 1e-3, 1e-4, 1e-5])
+        hp_dense_activation = hp.Choice('dense activation',values=['relu','swish','selu'])
+        hp_GRU_activation = hp.Choice('gru_activation', values=['tanh'])
+
+        model.add(
+            layers.GRU(units=hp_GRU_units2,
+                       activation=hp_GRU_activation,
+                       return_sequences=True))
+        model.add(
+            layers.GRU(units=hp_GRU_units1,
+                       activation=hp_GRU_activation,
+                       return_sequences=True))
+        model.add(
+            layers.GRU(units=hp_GRU_units3,
+                       activation=hp_GRU_activation,
+                       return_sequences=True))
+        model.add(layers.GRU(units=hp_GRU_units4,
+                             activation=hp_GRU_activation))
+        model.add(
+            layers.Dense(units=hp_Dense_unit1, activation=hp_dense_activation))
+        model.add(
+            layers.Dense(units=hp_Dense_unit2, activation=hp_dense_activation))
+        model.add(layers.Dense(8, activation='linear'))
+
+        model.compile(loss=MAE,
+                      optimizer=RMSprop(learning_rate=hp_learning_rate),
+                      metrics=['mse', 'mae'])
+
+        return model
+
+def hyperband_try():
+    df = DataSkipass().create_df()
+
+    df = filter_data(df)
+
+    df = fill_missing(df)
+
+    df_scaled = replace_nan(df, True, True)
+    X_train_scaled, y_train, X_valid_scaled, y_valid, X_test_scaled, y_test = split_X_y(
+        df_scaled)
+
+    df = replace_nan(df, False, False)
+    X_train, y_train, X_valid, y_valid, X_test, y_test = split_X_y(df)
+
+    print('La baseline mse est de : ' + str(baseline_mse(X_train, y_train)))
+    print('La baseline mae est de : ' + str(baseline_mae(X_train, y_train)))
+
+    test_predict_X = X_train[0]
+    test_predict_y = y_train[0]
+
+    del X_train, X_valid, X_test, df_scaled, df
+
+    col = y_train[0].columns
+
+    X_train, y_train = df_2_nparray(X_train_scaled, y_train)
+    X_valid, y_valid = df_2_nparray(X_valid_scaled, y_valid)
+    X_test, y_test = df_2_nparray(X_test_scaled, y_test)
+
+    hypermodel = model_test()
+
+    stop_early = EarlyStopping(monitor='val_loss',patience=5)
+
+    tuner = Hyperband(
+        hypermodel,
+        objective='mse',
+        max_epochs=15,
+        factor=3,
+        project_name='hyperband_test'
+    )
+
+    tuner.search(X_train,
+                    y_train,
+                    epochs=50,
+                    validation_data=(X_valid, y_valid),
+                    callbacks=[stop_early])
+
+
+def Bayesian_try():
+
+    df = DataSkipass().create_df()
+
+    df = filter_data(df)
+
+    df = fill_missing(df)
+
+    df_scaled = replace_nan(df, True, True)
+    X_train_scaled, y_train, X_valid_scaled, y_valid, X_test_scaled, y_test = split_X_y(
+        df_scaled)
+
+    df = replace_nan(df, False, False)
+    X_train, y_train, X_valid, y_valid, X_test, y_test = split_X_y(df)
+
+    print('La baseline mse est de : ' + str(baseline_mse(X_train, y_train)))
+    print('La baseline mae est de : ' + str(baseline_mae(X_train, y_train)))
+
+    test_predict_X = X_train[0]
+    test_predict_y = y_train[0]
+
+    del X_train, X_valid, X_test, df_scaled, df
+
+    col = y_train[0].columns
+
+    X_train, y_train = df_2_nparray(X_train_scaled, y_train)
+    X_valid, y_valid = df_2_nparray(X_valid_scaled, y_valid)
+    X_test, y_test = df_2_nparray(X_test_scaled, y_test)
+
+    hypermodel = model_test()
+
+    stop_early = EarlyStopping(monitor='val_loss', patience=5)
+
+    tuner = BayesianOptimization(hypermodel,
+                         objective='val_loss',
+                         max_trials=10,
+                         project_name='Bayes_test')
+
+    tuner.search(X_train,
+                 y_train,
+                 epochs=10,
+                 validation_data=(X_valid, y_valid),
+                 callbacks=[stop_early])
+
+    best_hyperparameters = tuner.get_best_hyperparameters(1)[0]
+
+    pickle.dump(best_hyperparameters, open("Best_Bayesian.p", "wb"))
+
+Bayesian_try()
