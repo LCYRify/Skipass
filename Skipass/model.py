@@ -1,16 +1,14 @@
 from Skipass.data import DataSkipass
 import Skipass.params as params
+from Skipass.utils.preprocessing import filter_data, replace_nan, split_X_y
 from Skipass.utils.split import df_2_nparray
-from tensorflow.keras.layers.experimental.preprocessing import Normalization
 from tensorflow.keras import Sequential, layers
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.metrics import MAPE, MSE, MSLE, MAE
 from tensorflow.keras.callbacks import EarlyStopping
 import matplotlib.pyplot as plt
 import pandas as pd
-import pickle
 import numpy as np
-import keras_tuner as kt
 import tensorflow as tf
 from tensorflow import keras
 
@@ -32,28 +30,43 @@ def model_run(shape1, shape2):
     return model
 
 
-data = DataSkipass()
+df = DataSkipass().create_df()
 
-X_train, y_train, X_valid, y_valid, X_test, y_test = data.split_X_y()
+df = filter_data(df)
+
+df_scaled = replace_nan(df, True, True)
+X_train_scaled, y_train, X_valid_scaled, y_valid, X_test_scaled, y_test = split_X_y(df_scaled)
+del y_train, y_valid, y_test, df_scaled
+
+df = replace_nan(df, False, False)
+X_train, y_train, X_valid, y_valid, X_test, y_test = split_X_y(df)
+
+test_predict_X = X_train[0]
+test_predict_y = y_train[0]
+
+del X_train, X_valid, X_test, df_scaled, df
+
 col = y_train[0].columns
 
-X_train, y_train = df_2_nparray(X_train, y_train)
-X_valid, y_valid = df_2_nparray(X_valid, y_valid)
-X_test, y_test = df_2_nparray(X_test, y_test)
+X_train, y_train = df_2_nparray(X_train_scaled, y_train)
+X_valid, y_valid = df_2_nparray(X_valid_scaled, y_valid)
+X_test, y_test = df_2_nparray(X_test_scaled, y_test)
+
+del X_test_scaled, X_train_scaled, X_valid_scaled
 
 shape1 = X_train.shape[1]
 shape2 = X_train.shape[2]
 
 model = model_run(shape1, shape2)
 
-es = EarlyStopping(patience=25, restore_best_weights=True)
+es = EarlyStopping(patience=5, restore_best_weights=True)
 
 history = model.fit(X_train,
                     y_train,
-                    epochs=1000,
+                    epochs=10,
                     validation_data=(X_valid, y_valid),
                     callbacks=[es])
 
 loss, mae = model.evaluate(X_test, y_test, verbose=2)
 
-model.save('my_model')
+model.save(params.model_path + 'my_model')
