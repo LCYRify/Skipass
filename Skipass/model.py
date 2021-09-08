@@ -1,8 +1,6 @@
 from Skipass.utils.evaluation import baseline_mse
 from Skipass.data import DataSkipass
 from Skipass.utils.evaluation import baseline_mse, baseline_mae
-import Skipass.params as params
-from Skipass.utils.utils import save_model
 from Skipass.utils.split import df_2_nparray
 from Skipass.utils.utils import save_model
 from Skipass.gcp import storage_upload
@@ -13,11 +11,8 @@ from tensorflow.keras import Sequential, layers
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.metrics import MAPE, MSE, MSLE, MAE
 from tensorflow.keras.callbacks import EarlyStopping
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import tensorflow as tf
-from tensorflow import keras
 
 
 def model_run(shape1, shape2):
