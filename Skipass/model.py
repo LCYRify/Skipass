@@ -14,20 +14,23 @@ import keras_tuner as kt
 import tensorflow as tf
 from tensorflow import keras
 
-def model_run(norm):
+
+def model_run(shape1, shape2):
 
     model = Sequential()
-    model.add(norm)
-    model.add(layers.GRU(960, activation='tanh', return_sequences=True))
-    model.add(layers.GRU(672, activation='tanh', return_sequences=True))
-    model.add(layers.GRU(96, activation='tanh'))
-    model.add(layers.Dense(424, activation='relu'))
-    model.add(layers.Dense(304, activation='relu'))
+    model.add(layers.GRU(10,activation='tanh',return_sequences=True,input_shape=(shape1, shape2)))
+    model.add(layers.GRU(10, activation='tanh', return_sequences=True))
+    model.add(layers.GRU(10, activation='tanh'))
+    model.add(layers.Dense(10, activation='relu'))
+    model.add(layers.Dense(10, activation='relu'))
     model.add(layers.Dense(8, activation='linear'))
 
-    model.compile(loss='msle', optimizer=RMSprop(learning_rate=0.01), metrics=MAE)
+    model.compile(loss='msle',
+                  optimizer=RMSprop(learning_rate=0.01),
+                  metrics=MAE)
 
     return model
+
 
 data = DataSkipass()
 
@@ -38,10 +41,10 @@ X_train, y_train = df_2_nparray(X_train, y_train)
 X_valid, y_valid = df_2_nparray(X_valid, y_valid)
 X_test, y_test = df_2_nparray(X_test, y_test)
 
-norm = Normalization()
-norm.adapt(X_train)
+shape1 = X_train.shape[1]
+shape2 = X_train.shape[2]
 
-model = model_run(norm)
+model = model_run(shape1, shape2)
 
 es = EarlyStopping(patience=25, restore_best_weights=True)
 
