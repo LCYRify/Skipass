@@ -1,38 +1,38 @@
 import pandas as pd
 import numpy as np
+from tensorflow.keras.losses import MeanSquaredError
+from tensorflow.keras.losses import MeanAbsoluteError
 
 
 def baseline_mae(X_train, y):
 
     col = y[0].columns
 
-    X = []
+    X = pd.DataFrame()
+    Y = pd.DataFrame()
     for i in X_train:
-        X.append(i[-1:][col])
+        X = pd.concat([X,i[-1:][col]])
+    mse = MeanAbsoluteError()
 
-    diff = 0
-    for k in col:
-        diff0 = 0
-        for i, j in zip(X, y):
-            diff0 = diff0 + np.absolute(i[k].values[0] - j[k].values[0])
-        diff0 = diff0 / len(X)
-        diff = diff + diff0
-    return diff / len(col)
+    for i in y:
+        Y = pd.concat([Y,i])
 
+    mae = MeanAbsoluteError()
+
+    return mae(X, Y)
 
 def baseline_mse(X_train, y):
 
     col = y[0].columns
 
-    X = []
+    X = pd.DataFrame()
+    Y = pd.DataFrame()
     for i in X_train:
-        X.append(i[-1:][col])
+        X = pd.concat([X,i[-1:][col]])
+    mse = MeanAbsoluteError()
 
-    diff = 0
-    for k in col:
-        diff0 = 0
-        for i, j in zip(X, y):
-            diff0 = diff0 + (i[k].values[0] - j[k].values[0])**2
-        diff0 = diff0 / len(X)
-        diff = diff + diff0
-    return diff / len(col)
+    for i in y:
+        Y = pd.concat([Y,i])
+
+    mse = MeanSquaredError()
+    return mse(X, Y)
