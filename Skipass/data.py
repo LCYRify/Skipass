@@ -21,13 +21,9 @@ from tensorflow.keras.callbacks import EarlyStopping
 """
 IMPORTS FROM SKIPASS PACKAGE
 """
-from Skipass.utils.DataCleaner import replace_values,delete_bad_measures,select_stations
-from Skipass.utils.df_typing import mf_date_conv_filtered, mf_date_totime
 from Skipass.station_filter.station_filter import station_filter_nivo,station_filter_synop, station_mapping
-#from Skipass.utils.utils import
 from Skipass.utils.cleaner import replace_nan_0, replace_nan_mean_2points, replace_nan_most_frequent, pmer_compute, categorize_rain, my_custom_ts_multi_data_prep
 from Skipass.utils.split import create_subsample, sequence, splitdata, df_2_nparray
-#from Skipass.grid import model_test
 from Skipass.utils.utils import save_model
 import Skipass.params as params
 
@@ -167,8 +163,12 @@ class DataSkipass:
 
         # scaling des datas en min max
         scaler = MinMaxScaler()
+        scaler.fit(df[['x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai','rr3', 'pres', 'dd_sin', 'dd_cos']])
         df[['x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai', 'rr3', 'pres', 'dd_sin', 'dd_cos']] = \
-        scaler.fit_transform(df[['x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai', 'rr3', 'pres', 'dd_sin', 'dd_cos']])
+        scaler.transform(df[['x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai', 'rr3', 'pres', 'dd_sin', 'dd_cos']])
+
+        # save the scaler
+        pickle.dump(scaler, open('scaler.pkl', 'wb'))
 
         df = df[df.numer_sta.isin(params.Stations)]
 
@@ -193,43 +193,3 @@ class DataSkipass:
         X_test, y_test = sequence(df_test,params.obs_per_seq,params.target,params.sequence_test)
 
         return X_train, y_train, X_valid, y_valid, X_test, y_test
-
-    def run_test(self):
-        df = self.replace_nan()
-        df.set_index('date', inplace=True)
-
-        #important
-        df.Latitude = np.radians(df.Latitude)
-        df.Longitude = np.radians(df.Longitude)
-        df['x'] = np.cos(df.Latitude) * np.cos(df.Longitude)
-        df['y'] = np.cos(df.Latitude) * np.sin(df.Longitude)
-        df['z'] = np.sin(df.Latitude)
-        df.drop(columns=['Latitude', 'Longitude'], inplace=True)
-        df = df.astype({"numer_sta": int, "Altitude": int, "dd": int})
-        #important
-
-
-        #df.numer_sta.unique()
-        # df[df.numer_sta == 7630]
-
-        #important
-
-        #important
-
-
-        # dataX = df[['numer_sta', 'x', 'y', 'z', 'Altitude', 'pmer', 'dd', 'ff', 't', 'u', 'ssfrai', 'rr3', 'pres', 'dd_sin', 'dd_cos']]
-        # dataY = df[['numer_sta', 't']]
-
-        what_to_predict = [1]
-        hist_window = 120 # 15 days * 8 measures per day
-        horizon = len(what_to_predict)
-        split = 0.8
-        x_train, y_train, x_val, y_val = my_custom_ts_multi_data_prep(dataX, dataY, split, hist_window, horizon)
-
-        print(x_train.shape, y_train.shape, x_val.shape, y_val.shape)
-        ind = np.random.randint(0, x_train.shape[0], 2)
-
-
-# if __name__ == '__main__':
-#     dsp = DataSkipass()
-#     dsp.run_test()

@@ -1,0 +1,38 @@
+import pandas as pd
+import numpy as np
+
+
+def baseline_mae(X_train, y):
+
+    col = y[0].columns
+
+    X = []
+    for i in X_train:
+        X.append(i[-1:][col])
+
+    diff = 0
+    for k in col:
+        diff0 = 0
+        for i, j in zip(X, y):
+            diff0 = diff0 + np.absolute(i[k].values[0] - j[k].values[0])
+        diff0 = diff0 / len(X)
+        diff = diff + diff0
+    return diff / len(col)
+
+
+def baseline_mse(X_train, y):
+
+    col = y[0].columns
+
+    X = []
+    for i in X_train:
+        X.append(i[-1:][col])
+
+    diff = 0
+    for k in col:
+        diff0 = 0
+        for i, j in zip(X, y):
+            diff0 = diff0 + (i[k].values[0] - j[k].values[0])**2
+        diff0 = diff0 / len(X)
+        diff = diff + diff0
+    return diff / len(col)
