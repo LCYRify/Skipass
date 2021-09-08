@@ -16,16 +16,16 @@ from tensorflow import keras
 def model_run(shape1, shape2):
 
     model = Sequential()
-    model.add(layers.GRU(10,activation='tanh',return_sequences=True,input_shape=(shape1, shape2)))
-    model.add(layers.GRU(10, activation='tanh', return_sequences=True))
-    model.add(layers.GRU(10, activation='tanh'))
-    model.add(layers.Dense(10, activation='relu'))
-    model.add(layers.Dense(10, activation='relu'))
+    model.add(layers.GRU(128,activation='tanh',return_sequences=True,input_shape=(shape1, shape2)))
+    model.add(layers.GRU(256, activation='tanh', return_sequences=True))
+    model.add(layers.GRU(512, activation='tanh'))
+    model.add(layers.Dense(128, activation='relu'))
+    model.add(layers.Dense(256, activation='relu'))
     model.add(layers.Dense(8, activation='linear'))
 
-    model.compile(loss='msle',
+    model.compile(loss='mae',
                   optimizer=RMSprop(learning_rate=0.01),
-                  metrics=MAE)
+                  metrics=MSLE)
 
     return model
 
