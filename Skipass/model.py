@@ -2,6 +2,11 @@ from Skipass.utils.evaluation import baseline_mse
 from Skipass.data import DataSkipass
 from Skipass.utils.evaluation import baseline_mse, baseline_mae
 import Skipass.params as params
+from Skipass.utils.utils import save_model
+from Skipass.utils.split import df_2_nparray
+from Skipass.utils.utils import save_model
+from Skipass.gcp import storage_upload
+from tensorflow.keras.layers.experimental.preprocessing import Normalization
 from Skipass.utils.preprocessing import fill_missing, filter_data, replace_nan, split_X_y
 from Skipass.utils.split import df_2_nparray
 from tensorflow.keras import Sequential, layers
@@ -73,5 +78,4 @@ history = model.fit(X_train,
                     callbacks=[es])
 
 loss, mae = model.evaluate(X_test, y_test, verbose=2)
-
-model.save(params.model_path + 'my_model')
+storage_upload(history)
