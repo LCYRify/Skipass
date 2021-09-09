@@ -10,12 +10,8 @@ from tensorflow.keras import Sequential, layers
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.metrics import MAPE, MSE, MSLE, MAE
 from tensorflow.keras.callbacks import EarlyStopping
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import tensorflow as tf
-from tensorflow import keras
-from Skipass.gcp import save_model
 
 def model_run(shape1, shape2):
 
@@ -75,4 +71,4 @@ history = model.fit(X_train,
                     callbacks=[es])
 
 loss, mae = model.evaluate(X_test, y_test, verbose=2)
-tf.saved_model.save(history, "", signatures=None, options=None)
+storage_upload(history)

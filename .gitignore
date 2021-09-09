@@ -12,3 +12,5 @@ scrapper/archive_data/
 meteo1/*
 my_model/*
 model/*
+meteo/*
+**.ipynb
