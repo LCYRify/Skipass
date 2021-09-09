@@ -50,15 +50,15 @@ def sarimax_fourier():
     arima_exog_model = auto_arima(y=y_to_train,
                                   exogenous=exog_to_train,
                                   seasonal=True,
+                                  trace=True,
                                   m=2922)
 
     print('data fitting is done')
 
     # Forecast
-    y_arima_exog_forecast = arima_exog_model.predict(n_periods=2918,
-                                                     exogenous=exog_to_test)
+    y_arima_exog_forecast = arima_exog_model.predict(n_periods=2918,exogenous=exog_to_test)
 
-    print('data Fforecasting is done')
+    print('data F is done')
 
     pickle.dump(arima_exog_model, open("sarima_model.p", "wb"))
     pickle.dump(y_arima_exog_forecast, open("sarima_forecast.p", "wb"))
