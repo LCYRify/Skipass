@@ -14,5 +14,5 @@ my_model/*
 model/*
 meteo/*
 **.ipynb
-Bayes_test/*
+Skipass/Bayes_test/*
 Best_Bayesian.p
