@@ -8,6 +8,7 @@ from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.metrics import MAPE, MSE, MSLE, MAE
 from tensorflow.keras.callbacks import EarlyStopping
 from keras_tuner import Hyperband, BayesianOptimization
+import Skipass.params as params
 import pandas as pd
 import pickle
 import numpy as np
@@ -120,6 +121,8 @@ def Bayesian_try():
     X_train, y_train, X_valid, y_valid, X_test, y_test = split_X_y(df)
 
     print('Sequencing y Train / Valid / Test split done')
+
+    print(f'Tuner pour une distance de {params.target} observation, un nombre de station de {params.Stations.count()}, et {params.sequence_train} sequence pour le training.')
 
     print('La baseline mse est de : ' + str(baseline_mse(X_train, y_train)))
     print('La baseline mae est de : ' + str(baseline_mae(X_train, y_train)))
