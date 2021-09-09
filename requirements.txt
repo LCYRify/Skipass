@@ -34,3 +34,7 @@ memoized-property
 termcolor
 jupyterlab
 folium
+fastapi
+
+# gcp
+joblib

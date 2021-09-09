@@ -1,4 +1,5 @@
 notebooks/*
+*.pkl
 *.egg-info
 .coverage
 .ipynb_checkpoints
@@ -8,3 +9,8 @@ raw_data/
 **/__pycache__/
 .env
 scrapper/archive_data/
+meteo1/*
+my_model/*
+model/*
+meteo/*
+**.ipynb

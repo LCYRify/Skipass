@@ -8,7 +8,6 @@ DATA PARAMS
 """
 REPLACE NAN STRATEGY:
 """
-
 column_dict = {
     'date': ['ns', 'dat', 'date', 'na'],
     'numer_sta': ['ns', 'nt', 'numéro de station', 'na'],
@@ -16,7 +15,7 @@ column_dict = {
     'Longitude': ['ns', 'nt', 'Longitude', 'na'],
     'Altitude': ['ns', 'int', 'Altitude', 'na'],
     'pmer':
-    ['ss', 'int', 'Pression au niveau de la mer', 'replace_nan_mean_2points'],
+    ['ss', 'int', 'Pression au niveau de la mer', 'na'],
     'dd': ['ss', 'int', 'Direction du vent', 'replace_nan_most_frequent'],
     'ff': ['ss', 'flt', 'Vitesse du vent', 'replace_nan_0'],
     't': ['ss', 'flt', 'Température', 'replace_nan_mean_2points'],
@@ -49,15 +48,22 @@ Col_select = (Not_encoded + Num_col_standard + Num_col_robust +
               Num_col_minmax + Cat_col + Num_col_todrop)
 Col_improved = Col_select +  Num_col_engineer
 Col_base = (Num_col_standard + Num_col_robust + Num_col_minmax + Cat_col + Num_col_engineer)
-Stations = [7481, 7650, 7630, 7690, 7591, 7577, 7643]
-day_per_seq = 15
+Stations = [
+    7481, 7650, 7630, 7690, 7577, 7643, 7460, 7280, 7255, 7240, 7510,
+    7434, 7299, 7222
+]
+#Stations = [7481, 7650, 7630, 7690, 7591, 7577, 7643]
+#Stations = [7481]
+day_per_seq = 7
 obs_per_day = 24/3
 obs_per_seq = int(day_per_seq * obs_per_day)
 target = 1
-sequence_train = 250
+sequence_train = 1000
 sequence_test = int(sequence_train * 0.5)
 sequence_valid = int(sequence_train * 0.2)
 col_synop_float = Col_select[1:]
+
+model_path = '../model/'
 
 
 def extract_list_target():
@@ -70,3 +76,17 @@ def extract_list_target():
         elif column_dict[key][3] == 'replace_nan_0':
             l0.append(key)
     return lm2p, lmf, l0
+
+"""
+GCP CONFIGURATION
+"""
+# - - - GCP Project - - -
+PROJECT_ID='skipass-325207'
+# - - - GCP Storage - - -
+BUCKET_NAME='skipass_325207_model'
+REGION='europe-west1'
+# - - - Data - - -
+BUCKET_TRAIN_DATA_PATH = 'skipass_325207_data/weather_synop_data.csv'
+# - - - Model - - -
+MODEL_NAME = 'skipass'
+MODEL_VERSION = 'v1'

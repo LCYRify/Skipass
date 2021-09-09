@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import joblib
+from google.cloud import storage
+from tensorflow.keras.models import load_model
 
 
 def mf_date_totime(df):
@@ -126,3 +129,17 @@ def draw_station(X):
     sns.lineplot(x=X.index, y=X['dd_cos'], ax=axs[2, 2])
 
     print(fig)
+
+def plot_guillaume():
+
+    fig, axs = plt.subplots(nrows=x_train.shape[2], ncols=2, sharex=True, figsize=(8, 20))
+    fig.suptitle('Two random samples \n [{:d} & {:d}]'.format(*ind))
+
+    the_range = [x+x_train.shape[1]-1 for x in what_to_predict]
+
+    for j in range(2):
+        for i in range(x_train.shape[2]):
+            axs[i, j].set_title(dataX.columns[i+1], fontsize=9)
+            axs[i, j].plot(x_train[ind[j], :, i])
+            if dataX.columns[i+1] == 't':
+                axs[i, j].scatter(the_range, y_train[ind[j]])
