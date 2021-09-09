@@ -50,42 +50,48 @@ def arima(df, col_name):
     df_f.reset_index(drop=True)
 
     t = df_f.index
-    data = df_f[col_name]
-    data_fit, data_first=my_fit(t, data, 11)
 
-    df_f["unyearly"] = data - data_fit
-    df_f.set_index('date', inplace=True)
-    df_f = df_f.asfreq(freq='3H')
+    answer = []
 
-    total_slot = 8 * 25
-    train_slot = 8 * 20
-    serie = df_f["unyearly"]
-    min_slot = len(serie) - total_slot
-    df_slot = df_f[min_slot:]
+    for i in col_name:
 
-    result_add = seasonal_decompose(df_slot["unyearly"], model='additive')
+        data = df_f[col_name[i]]
+        data_fit, data_first=my_fit(t, data, 11)
+        df_f["unyearly"] = data - data_fit
+        df_f.set_index('date', inplace=True)
+        df_f = df_f.asfreq(freq='3H')
 
-    df_deseasonal = df_slot["unyearly"] - result_add.seasonal
+        total_slot = 8 * 25
+        train_slot = 8 * 20
+        serie = df_f["unyearly"]
+        min_slot = len(serie) - total_slot
+        df_slot = df_f[min_slot:]
 
-    # Build Model
-    model = ARIMA(df_deseasonal, order=(0, 1, 3))
-    arima = model.fit()
+        result_add = seasonal_decompose(df_slot["unyearly"], model='additive')
 
-    # Forecast
-    forecast, std_err, confidence_int = arima.forecast(2, alpha=0.05)  # 95% confidence
+        df_deseasonal = df_slot["unyearly"] - result_add.seasonal
 
-    data_fit_slot = data_fit[min_slot:]
+        # Build Model
+        model = ARIMA(df_deseasonal, order=(0, 1, 3))
+        arima = model.fit()
 
-    #test_saisonal = result_add.seasonal[train_slot:] + data_fit_slot[train_slot:]
+        # Forecast
+        forecast, std_err, confidence_int = arima.forecast(2, alpha=0.05)  # 95% confidence
 
-    test_saisonal= 0
+        data_fit_slot = data_fit[min_slot:]
 
-    #train_saisonal = result_add.seasonal[0:train_slot] + data_fit_slot[0:train_slot]
+        #test_saisonal = result_add.seasonal[train_slot:] + data_fit_slot[train_slot:]
 
-    forecast_recons = forecast + test_saisonal
-    #train_recons = train + train_saisonal
-    #test_recons = test + test_saisonal
-    lower_recons = confidence_int[:, 0] + test_saisonal
-    upper_recons = confidence_int[:, 1] + test_saisonal
+        test_saisonal= 0
 
-    return forecast_recons
+        #train_saisonal = result_add.seasonal[0:train_slot] + data_fit_slot[0:train_slot]
+
+        forecast_recons = forecast + test_saisonal
+        #train_recons = train + train_saisonal
+        #test_recons = test + test_saisonal
+        lower_recons = confidence_int[:, 0] + test_saisonal
+        upper_recons = confidence_int[:, 1] + test_saisonal
+
+        answer.append(forecast_recons)
+
+    return answer
