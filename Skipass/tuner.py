@@ -141,12 +141,12 @@ def Bayesian_try():
 
     tuner = BayesianOptimization(hypermodel,
                          objective='val_loss',
-                         max_trials=10,
+                         max_trials=5,
                          project_name='Bayes_test_mae_1obs_18sta_2k5seq')
 
     tuner.search(X_train,
                  y_train,
-                 epochs=10,
+                 epochs=50,
                  validation_data=(X_valid, y_valid),
                  callbacks=[stop_early])
 
