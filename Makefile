@@ -98,5 +98,5 @@ gcp_submit_training:
 		--runtime-version=${RUNTIME_VERSION} \
 		--region ${REGION} \
 		--scale-tier CUSTOM \
-		--master-machine-type n1-standard-32 \
+		--master-machine-type n1-standard-96 \
 		--stream-logs

@@ -27,6 +27,7 @@ from Skipass.utils.cleaner import replace_nan_0, replace_nan_mean_2points, repla
 from Skipass.utils.split import create_subsample, sequence, splitdata, df_2_nparray
 from Skipass.utils.utils import save_model
 import Skipass.params as params
+from Skipass.gcp import upload_model_to_gcp
 
 """
 PATHS
@@ -170,7 +171,9 @@ def replace_nan(df, scaler, to_scaled):
             scaler = MinMaxScaler()
             scaler.fit(df[['x', 'y', 'z', 'Altitude', 'pmer', 'ff', 't', 'u', 'ssfrai','rr3', 'dd_sin', 'dd_cos']])
             # save the scaler
-            pickle.dump(scaler, open(params.model_path + 'scaler.pkl', 'wb'))
+            
+            upload_model_to_gcp(scaler)
+            #pickle.dump(scaler, open(params.model_path + 'scaler.pkl', 'wb'))
         else:
             # load the scaler
             pickle.load(scaler, open(params.model_path + 'scaler.pkl', 'rb'))

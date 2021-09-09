@@ -2,10 +2,7 @@ from Skipass.utils.evaluation import baseline_mse
 from Skipass.data import DataSkipass
 from Skipass.utils.evaluation import baseline_mse, baseline_mae
 import Skipass.params as params
-from Skipass.utils.utils import save_model
 from Skipass.utils.split import df_2_nparray
-from Skipass.utils.utils import save_model
-from Skipass.gcp import storage_upload
 from tensorflow.keras.layers.experimental.preprocessing import Normalization
 from Skipass.utils.preprocessing import fill_missing, filter_data, replace_nan, split_X_y
 from Skipass.utils.split import df_2_nparray
@@ -18,7 +15,7 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-
+from Skipass.gcp import save_model
 
 def model_run(shape1, shape2):
 
@@ -69,13 +66,13 @@ shape2 = X_train.shape[2]
 
 model = model_run(shape1, shape2)
 
-es = EarlyStopping(patience=5, restore_best_weights=True)
+es = EarlyStopping(patience=1, restore_best_weights=True)
 
 history = model.fit(X_train,
                     y_train,
-                    epochs=10,
+                    epochs=1,
                     validation_data=(X_valid, y_valid),
                     callbacks=[es])
 
 loss, mae = model.evaluate(X_test, y_test, verbose=2)
-storage_upload(history)
+tf.saved_model.save(history, "", signatures=None, options=None)

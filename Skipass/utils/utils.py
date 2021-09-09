@@ -95,6 +95,8 @@ def draw_sample(X, y, n):
                     color='red')
     print(fig)
 
+def save_model():
+    pass
 
 def draw_station(X):
     fig, axs = plt.subplots(3, 3, figsize=(25, 12))

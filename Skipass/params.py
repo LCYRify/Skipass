@@ -63,8 +63,8 @@ sequence_test = int(sequence_train * 0.5)
 sequence_valid = int(sequence_train * 0.2)
 col_synop_float = Col_select[1:]
 
-model_path = '../model/'
-
+#model_path = '/Users/devasou/code/LCYRify/Skipass/model/'
+model_path = 'gs://skipass_325207_model/'
 
 def extract_list_target():
     lm2p, lmf, l0 = [],[],[]
@@ -90,3 +90,5 @@ BUCKET_TRAIN_DATA_PATH = 'skipass_325207_data/weather_synop_data.csv'
 # - - - Model - - -
 MODEL_NAME = 'skipass'
 MODEL_VERSION = 'v1'
+STORAGE_LOCATION = 'models/skipass/model.joblib'
+PATH_TO_LOCAL_MODEL = 'model/model.joblib'

@@ -24,7 +24,6 @@ IMPORTS FROM SKIPASS PACKAGE
 from Skipass.station_filter.station_filter import station_filter_nivo,station_filter_synop, station_mapping
 from Skipass.utils.cleaner import replace_nan_0, replace_nan_mean_2points, replace_nan_most_frequent, pmer_compute, categorize_rain, my_custom_ts_multi_data_prep
 from Skipass.utils.split import create_subsample, sequence, splitdata, df_2_nparray
-from Skipass.utils.utils import save_model
 import Skipass.params as params
 
 """
@@ -32,13 +31,13 @@ PATHS
 """
 
 chemin = os.path.dirname(os.path.realpath('__file__'))
-path_CSV = chemin + '/raw_data/weather_synop_data.csv'
-path_txt = chemin + '/documentation/liste_stations_rawdata_synop.txt'
+#path_CSV = chemin + '/raw_data/weather_synop_data.csv'
+#path_txt = chemin + '/documentation/liste_stations_rawdata_synop.txt'
 
-#path_to_data = 'gs://skipass_325207_model/skipass_325207_data/weather_synop_data.csv'
-#path_to_station_list = 'gs://skipass_325207_model/skipass_325207_data/liste_stations_rawdata_synop.txt'
-path_to_data = path_CSV
-path_to_station_list = path_txt
+path_to_data = 'gs://skipass_325207_model/skipass_325207_data/weather_synop_data.csv'
+path_to_station_list = 'gs://skipass_325207_model/skipass_325207_data/liste_stations_rawdata_synop.txt'
+#path_to_data = path_CSV
+#path_to_station_list = path_txt
 
 
 class DataSkipass:
