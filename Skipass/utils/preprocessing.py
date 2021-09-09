@@ -25,7 +25,6 @@ from Skipass.data import DataSkipass
 from Skipass.station_filter.station_filter import station_filter_nivo,station_filter_synop, station_mapping
 from Skipass.utils.cleaner import replace_nan_0, replace_nan_mean_2points, replace_nan_most_frequent, pmer_compute, categorize_rain, my_custom_ts_multi_data_prep
 from Skipass.utils.split import create_subsample, sequence, splitdata, df_2_nparray
-from Skipass.utils.utils import save_model
 import Skipass.params as params
 
 """

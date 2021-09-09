@@ -1,12 +1,19 @@
 from pmdarima import auto_arima
 from Skipass.data import DataSkipass
-import Skipass.utils
+from Skipass.utils.preprocessing import fill_missing, filter_data, replace_nan
 import numpy as np
 import pickle
 
 
-def sarimax_fourier(df):
-    df = df.replace_nan()
+def sarimax_fourier():
+
+    df = DataSkipass().create_df()
+
+    df = filter_data(df)
+
+    df = fill_missing(df)
+
+    df = replace_nan(df, False, False)
 
     '''
     Take df, put date in index then drop
@@ -44,3 +51,5 @@ def sarimax_fourier(df):
 
     pickle.dump(arima_exog_model, open("sarima_model.p", "wb"))
     pickle.dump(y_arima_exog_forecast, open("sarima_forecast.p", "wb"))
+
+sarimax_fourier()
