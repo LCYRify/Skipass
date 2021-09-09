@@ -39,11 +39,11 @@ def my_fit(t, data, guess_freq):
 
 
 def arima(df, col_name):
-    '''Import Raw Dataset (station 7577) and clearing (remove NaN, mq, missing values) '''
-    df = DataSkipass().create_df()
-    df = filter_data(df)
-    df = fill_missing(df)
-    df = replace_nan(df, False, False)
+    '''Import Raw Dataset (station 7    577) and clearing (remove NaN, mq, missing values) '''
+    # df = DataSkipass().create_df()
+    # df = filter_data(df)
+    # df = fill_missing(df)
+    # df = replace_nan(df, False, False)
     print('Preprocesing done : dataset clear')
 
     df_f = df
@@ -54,7 +54,7 @@ def arima(df, col_name):
     data_fit, data_first=my_fit(t, data, 11)
 
     df_f["unyearly"] = data - data_fit
-
+    df_f.set_index('date', inplace=True)
     df_f = df_f.asfreq(freq='3H')
 
     total_slot = 8 * 25
@@ -67,12 +67,6 @@ def arima(df, col_name):
 
     df_deseasonal = df_slot["unyearly"] - result_add.seasonal
 
-    #df_diff = df_deseasonal.diff()
-
-    # Create a correct Training/Test split to predict the last 50 points
-    #train = df_deseasonal[0:train_slot]
-    #test = df_deseasonal[train_slot:]
-
     # Build Model
     model = ARIMA(df_deseasonal, order=(0, 1, 3))
     arima = model.fit()
@@ -84,7 +78,7 @@ def arima(df, col_name):
 
     #test_saisonal = result_add.seasonal[train_slot:] + data_fit_slot[train_slot:]
 
-    test_saisonal=?
+    test_saisonal= 0
 
     #train_saisonal = result_add.seasonal[0:train_slot] + data_fit_slot[0:train_slot]
 
