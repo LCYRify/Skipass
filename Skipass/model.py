@@ -18,10 +18,10 @@ import numpy as np
 def model_run(shape1, shape2):
 
     model = Sequential()
-    model.add(layers.GRU(320,activation='tanh',return_sequences=True,input_shape=(shape1, shape2)))
-    model.add(layers.GRU(128, activation='tanh', return_sequences=True))
+    model.add(layers.GRU(256,activation='tanh',return_sequences=True,input_shape=(shape1, shape2)))
+    model.add(layers.GRU(192, activation='tanh', return_sequences=True))
+    model.add(layers.GRU(320, activation='tanh', return_sequences=True))
     model.add(layers.GRU(256, activation='tanh'))
-    model.add(layers.Dense(256, activation='relu'))
     model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(8, activation='linear'))
 
@@ -64,16 +64,16 @@ shape2 = X_train.shape[2]
 
 model = model_run(shape1, shape2)
 
-es = EarlyStopping(patience=5, restore_best_weights=True)
+es = EarlyStopping(patience=25, restore_best_weights=True)
 
 history = model.fit(X_train,
                     y_train,
-                    epochs=10,
+                    epochs=1000,
                     validation_data=(X_valid, y_valid),
                     callbacks=[es])
 
 loss, mae = model.evaluate(X_test, y_test, verbose=2)
 
-model.save('saved_model/meteo1')
+model.save('../saved_model/meteo1')
 
 #storage_upload(history)
