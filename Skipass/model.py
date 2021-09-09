@@ -2,7 +2,7 @@ from Skipass.utils.evaluation import baseline_mse
 from Skipass.data import DataSkipass
 from Skipass.utils.evaluation import baseline_mse, baseline_mae
 from Skipass.utils.split import df_2_nparray
-from Skipass.utils.utils import save_model
+# from Skipass.utils.utils import save_model
 from Skipass.gcp import storage_upload
 from tensorflow.keras.layers.experimental.preprocessing import Normalization
 from Skipass.utils.preprocessing import fill_missing, filter_data, replace_nan, split_X_y

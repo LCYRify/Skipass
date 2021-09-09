@@ -88,7 +88,8 @@ upload_data:
 	@gsutil cp ${LOCAL_PATH} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}
 run_locally:
 	@python -m ${PACKAGE_NAME}.${FILENAME}
-
+run_api:
+	uvicorn api.fast:app --reload
 gcp_submit_training:
 	gcloud ai-platform jobs submit training ${JOB_NAME} \
 		--job-dir gs://${BUCKET_NAME}/${BUCKET_TRAINING_FOLDER} \

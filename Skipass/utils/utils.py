@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
 from google.cloud import storage
-from tensorflow.keras.models import load_model
+# from tensorflow.keras.models import load_model
 
 
 def mf_date_totime(df):
@@ -95,6 +95,8 @@ def draw_sample(X, y, n):
                     color='red')
     print(fig)
 
+def save_model():
+    return None
 
 def draw_station(X):
     fig, axs = plt.subplots(3, 3, figsize=(25, 12))
