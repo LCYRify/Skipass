@@ -27,7 +27,7 @@ class model_test(kt.HyperModel):
         hp_GRU_units2 = hp.Int('GRU unit2', min_value=64, max_value=512, step=64)
         hp_GRU_units3 = hp.Int('GRU unit3', min_value=64, max_value=512, step=32)
         hp_GRU_units4 = hp.Int('GRU unit4', min_value=64, max_value=512, step=32)
-       # hp_GRU_units5 = hp.Int('GRU unit5', min_value=64, max_value=512, step=32)
+        # hp_GRU_units5 = hp.Int('GRU unit5', min_value=64, max_value=512, step=32)
         hp_Dense_unit1 = hp.Int('hp_Dense_unit1', min_value=16, max_value=256, step=16)
         hp_learning_rate = hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4, 1e-5])
         hp_dense_activation = hp.Choice('dense activation',values=['relu','swish','selu'])
@@ -122,7 +122,9 @@ def Bayesian_try():
 
     print('Sequencing y Train / Valid / Test split done')
 
-    print(f'Tuner pour une distance de {params.target} observation, un nombre de station de {params.Stations.count()}, et {params.sequence_train} sequence pour le training.')
+    print(
+        f'Tuner pour une distance de {params.target} observation, un nombre de station de {len(params.Stations)}, et {params.sequence_train} sequence pour le training.'
+    )
 
     print('La baseline mse est de : ' + str(baseline_mse(X_train, y_train)))
     print('La baseline mae est de : ' + str(baseline_mae(X_train, y_train)))
