@@ -45,10 +45,13 @@ def nivo_merger_tocsv():
     df.to_csv(path_2_save_date)
 
 def create_last15_csv():
-    path_last_15 = path.abspath('../raw_data/last_15.csv.gz')
+    #path_last_15 = path.abspath('/Users/devasou/code/LCYRify/Skipass/raw_data/last_15.csv')
 
-    df = pd.read_csv(path_last_15, delimiter=';')
+    df = pd.read_csv('/Users/devasou/code/LCYRify/Skipass/raw_data/last_15.csv', delimiter=',')
+    print('csv read')
+    print(df.head())
     df_stat = DataSkipass().import_list_stations()
+    print('stations imported')
     df = df.drop(columns=['Unnamed: 59'])
     df_stat = df_stat.rename(columns={'ID': 'numer_sta'})
     df = df_stat.merge(df, on='numer_sta')
