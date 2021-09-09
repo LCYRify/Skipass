@@ -40,3 +40,9 @@ def nivo_merger_tocsv():
     dumpname = 'weather_nivodata.csv'
     path_2_save_date = path.join(path_2_save,dumpname)
     df.to_csv(path_2_save_date)
+
+def create_last15_csv():
+    path_last_15 = '/home/romain/code/LCYRify/Skipass/raw_data/last_15'
+    with open((path_last_15 + '.txt'), 'rb') as file:
+        df_temp = pd.read_csv(file, delimiter=';')
+    df_temp.to_csv(path_last_15 + '.csv')

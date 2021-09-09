@@ -49,12 +49,19 @@ def sequence(df, lenght, target, sequence):
     for i in X_:
         i.drop(columns=['date', 'numer_sta','dd','pres'], inplace=True)
 
-    for i in y_:
-        i.drop(
-            columns=['date', 'numer_sta', 'x', 'y', 'z', 'Altitude','dd','pres'],
-            inplace=True)
+    y_2 = []
 
-    return X_, y_
+    for i in y_:
+        # i.drop(
+        #     columns=['date', 'numer_sta', 'x', 'y', 'z', 'Altitude','dd','pres'],
+        #     inplace=True)
+
+        y_2.append(i[['t']])
+
+        # i = i[['t']].copy()
+
+    return X_, y_2
+
 
 def df_2_nparray(X_,y_):
 

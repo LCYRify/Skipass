@@ -25,7 +25,6 @@ from Skipass.data import DataSkipass
 from Skipass.station_filter.station_filter import station_filter_nivo,station_filter_synop, station_mapping
 from Skipass.utils.cleaner import replace_nan_0, replace_nan_mean_2points, replace_nan_most_frequent, pmer_compute, categorize_rain, my_custom_ts_multi_data_prep
 from Skipass.utils.split import create_subsample, sequence, splitdata, df_2_nparray
-from Skipass.utils.utils import save_model
 import Skipass.params as params
 
 """
@@ -164,16 +163,19 @@ def replace_nan(df, scaler, to_scaled):
     df.drop(columns=['Latitude', 'Longitude'], inplace=True)
     df = df.astype({"numer_sta": int, "Altitude": int, "dd": int})
 
+    chemin = os.path.dirname(os.path.realpath('__file__'))
+    path_CSV = chemin + '/../saved_model/scaler.pkl'
+
     # scaling des datas en min max
     if scaler == True:
         if to_scaled == True:
             scaler = MinMaxScaler()
             scaler.fit(df[['x', 'y', 'z', 'Altitude', 'pmer', 'ff', 't', 'u', 'ssfrai','rr3', 'dd_sin', 'dd_cos']])
             # save the scaler
-            pickle.dump(scaler, open(params.model_path + 'scaler.pkl', 'wb'))
+            pickle.dump(scaler, open(path_CSV, 'wb'))
         else:
             # load the scaler
-            pickle.load(scaler, open(params.model_path + 'scaler.pkl', 'rb'))
+            pickle.load(scaler, open(path_CSV, 'rb'))
         df[['x', 'y', 'z', 'Altitude', 'pmer', 'ff', 't', 'u', 'ssfrai', 'rr3', 'dd_sin', 'dd_cos']] = \
         scaler.transform(df[['x', 'y', 'z', 'Altitude', 'pmer', 'ff', 't', 'u', 'ssfrai', 'rr3', 'dd_sin', 'dd_cos']])
 

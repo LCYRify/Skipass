@@ -57,13 +57,13 @@ Stations = [
 day_per_seq = 7
 obs_per_day = 24/3
 obs_per_seq = int(day_per_seq * obs_per_day)
-target = 1
-sequence_train = 1000
+target = 2
+sequence_train = 2500
 sequence_test = int(sequence_train * 0.5)
 sequence_valid = int(sequence_train * 0.2)
 col_synop_float = Col_select[1:]
 
-model_path = '../model/'
+model_path = '../../saved_model/'
 
 
 def extract_list_target():
