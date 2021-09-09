@@ -26,7 +26,7 @@ class model_test(kt.HyperModel):
         hp_GRU_units2 = hp.Int('GRU unit2', min_value=64, max_value=512, step=64)
         hp_GRU_units3 = hp.Int('GRU unit3', min_value=64, max_value=512, step=32)
         hp_GRU_units4 = hp.Int('GRU unit4', min_value=64, max_value=512, step=32)
-        hp_GRU_units5 = hp.Int('GRU unit5', min_value=64, max_value=512, step=32)
+       # hp_GRU_units5 = hp.Int('GRU unit5', min_value=64, max_value=512, step=32)
         hp_Dense_unit1 = hp.Int('hp_Dense_unit1', min_value=16, max_value=256, step=16)
         hp_learning_rate = hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4, 1e-5])
         hp_dense_activation = hp.Choice('dense activation',values=['relu','swish','selu'])
@@ -35,8 +35,8 @@ class model_test(kt.HyperModel):
         model.add(layers.GRU(units=hp_GRU_units1, activation=hp_GRU_activation, return_sequences=True))
         model.add(layers.GRU(units=hp_GRU_units2, activation=hp_GRU_activation, return_sequences=True))
         model.add(layers.GRU(units=hp_GRU_units3, activation=hp_GRU_activation, return_sequences=True))
-        model.add(layers.GRU(units=hp_GRU_units4, activation=hp_GRU_activation, return_sequences=True))
-        model.add(layers.GRU(units=hp_GRU_units5, activation=hp_GRU_activation))
+        model.add(layers.GRU(units=hp_GRU_units4, activation=hp_GRU_activation))
+        #model.add(layers.GRU(units=hp_GRU_units5, activation=hp_GRU_activation))
         model.add(layers.Dense(units=hp_Dense_unit1, activation=hp_dense_activation))
         model.add(layers.Dense(8, activation='linear'))
 
@@ -92,21 +92,39 @@ def Bayesian_try():
 
     df = DataSkipass().create_df()
 
+    print('Data : loaded in RAM')
+
     df = filter_data(df)
+
+    print('Data : filtered')
 
     df = fill_missing(df)
 
+    print('Data : missing values filled')
+
     df_scaled = replace_nan(df, True, True)
+
+    print('Data : NaN treated')
+
     X_train_scaled, y_train, X_valid_scaled, y_valid, X_test_scaled, y_test = split_X_y(
         df_scaled)
 
+    del df_scaled, y_train, y_valid, y_test
+
+    print('Sequencing X Train / Valid / Test split done')
+
     df = replace_nan(df, False, False)
+
+    print('Data : NaN treated')
+
     X_train, y_train, X_valid, y_valid, X_test, y_test = split_X_y(df)
+
+    print('Sequencing y Train / Valid / Test split done')
 
     print('La baseline mse est de : ' + str(baseline_mse(X_train, y_train)))
     print('La baseline mae est de : ' + str(baseline_mae(X_train, y_train)))
 
-    del X_train, X_valid, X_test, df_scaled, df
+    del X_train, X_valid, X_test, df
 
     X_train, y_train = df_2_nparray(X_train_scaled, y_train)
     X_valid, y_valid = df_2_nparray(X_valid_scaled, y_valid)
