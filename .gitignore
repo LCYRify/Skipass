@@ -14,3 +14,5 @@ my_model/*
 model/*
 meteo/*
 **.ipynb
+Bayes_test/*
+Best_Bayesian.p
