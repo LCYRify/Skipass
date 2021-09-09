@@ -163,16 +163,19 @@ def replace_nan(df, scaler, to_scaled):
     df.drop(columns=['Latitude', 'Longitude'], inplace=True)
     df = df.astype({"numer_sta": int, "Altitude": int, "dd": int})
 
+    chemin = os.path.dirname(os.path.realpath('__file__'))
+    path_CSV = chemin + '/../saved_model/scaler.pkl'
+
     # scaling des datas en min max
     if scaler == True:
         if to_scaled == True:
             scaler = MinMaxScaler()
             scaler.fit(df[['x', 'y', 'z', 'Altitude', 'pmer', 'ff', 't', 'u', 'ssfrai','rr3', 'dd_sin', 'dd_cos']])
             # save the scaler
-            pickle.dump(scaler, open(params.model_path + 'scaler.pkl', 'wb'))
+            pickle.dump(scaler, open(path_CSV, 'wb'))
         else:
             # load the scaler
-            pickle.load(scaler, open(params.model_path + 'scaler.pkl', 'rb'))
+            pickle.load(scaler, open(path_CSV, 'rb'))
         df[['x', 'y', 'z', 'Altitude', 'pmer', 'ff', 't', 'u', 'ssfrai', 'rr3', 'dd_sin', 'dd_cos']] = \
         scaler.transform(df[['x', 'y', 'z', 'Altitude', 'pmer', 'ff', 't', 'u', 'ssfrai', 'rr3', 'dd_sin', 'dd_cos']])
 
