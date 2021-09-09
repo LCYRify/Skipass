@@ -63,7 +63,7 @@ sequence_test = int(sequence_train * 0.5)
 sequence_valid = int(sequence_train * 0.2)
 col_synop_float = Col_select[1:]
 
-model_path = '../saved_model/'
+model_path = '../../saved_model/'
 
 
 def extract_list_target():
