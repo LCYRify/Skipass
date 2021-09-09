@@ -76,7 +76,7 @@ def hyperband_try():
 
     tuner = Hyperband(
         hypermodel,
-        objective='mse',
+        objective='mae',
         max_epochs=15,
         factor=3,
         project_name='hyperband_test'
@@ -142,7 +142,7 @@ def Bayesian_try():
     tuner = BayesianOptimization(hypermodel,
                          objective='val_loss',
                          max_trials=10,
-                         project_name='Bayes_test')
+                         project_name='Bayes_test_mae_1obs_18sta_2k5seq')
 
     tuner.search(X_train,
                  y_train,
@@ -152,6 +152,6 @@ def Bayesian_try():
 
     best_hyperparameters = tuner.get_best_hyperparameters(1)[0]
 
-    pickle.dump(best_hyperparameters, open("Best_Bayesian.p", "wb"))
+    pickle.dump(best_hyperparameters, open("Best_Bayesian_mae.p", "wb"))
 
 Bayesian_try()
