@@ -1,6 +1,9 @@
 from os import listdir, path
 import pandas as pd
 import gzip
+from Skipass.utils.preprocessing import filter_data,fill_missing
+from Skipass.data import DataSkipass
+
 
 def synop_merger_tocsv():
     df = pd.DataFrame()
@@ -42,7 +45,14 @@ def nivo_merger_tocsv():
     df.to_csv(path_2_save_date)
 
 def create_last15_csv():
-    path_last_15 = '/home/romain/code/LCYRify/Skipass/raw_data/last_15'
-    with open((path_last_15 + '.txt'), 'rb') as file:
-        df_temp = pd.read_csv(file, delimiter=';')
-    df_temp.to_csv(path_last_15 + '.csv')
+    path_last_15 = path.abspath('../raw_data/last_15.csv.gz')
+
+    df = pd.read_csv(path_last_15, delimiter=';')
+    df_stat = DataSkipass().import_list_stations()
+    df = df.drop(columns=['Unnamed: 59'])
+    df_stat = df_stat.rename(columns={'ID': 'numer_sta'})
+    df = df_stat.merge(df, on='numer_sta')
+    df = filter_data(df)
+    df = fill_missing(df)
+
+    return df
