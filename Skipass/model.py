@@ -2,7 +2,6 @@ from Skipass.utils.evaluation import baseline_mse
 from Skipass.data import DataSkipass
 from Skipass.utils.evaluation import baseline_mse, baseline_mae
 from Skipass.utils.split import df_2_nparray
-from Skipass.utils.utils import save_model
 from Skipass.gcp import storage_upload
 from tensorflow.keras.layers.experimental.preprocessing import Normalization
 from Skipass.utils.preprocessing import fill_missing, filter_data, replace_nan, split_X_y
@@ -11,6 +10,7 @@ from tensorflow.keras import Sequential, layers
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.metrics import MAPE, MSE, MSLE, MAE
 from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.models import save_model
 import pandas as pd
 import numpy as np
 
@@ -73,4 +73,7 @@ history = model.fit(X_train,
                     callbacks=[es])
 
 loss, mae = model.evaluate(X_test, y_test, verbose=2)
-storage_upload(history)
+
+model.save('saved_model/meteo1')
+
+#storage_upload(history)
