@@ -182,3 +182,17 @@ def get_rain(station, t, u, pmer):  # numer_sta is the station number integer
     #  print(lcl[variable_name])
     X_test = np.array([[t, u, pmer]])
     return model.predict(X_test)
+
+def API_return(station):
+
+    csv_path = root_path + 'raw_data/stations_arima.csv'
+    df = pd.read_csv(csv_path)
+    df = df[df['numer_sta'] == station]
+
+    x = arima(df)
+
+    rain = get_rain(station, x[0], x[1], x[2])[0]
+
+    x.append(rain)
+
+    return x
