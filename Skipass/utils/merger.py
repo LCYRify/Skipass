@@ -1,14 +1,16 @@
 from os import listdir, path
 import pandas as pd
 import gzip
-from Skipass.utils.preprocessing import filter_data,fill_missing
+from Skipass.utils.preprocessing import fill_missing, filter_data, replace_nan, split_X_y
 from Skipass.data import DataSkipass
 
 
 def synop_merger_tocsv():
     df = pd.DataFrame()
-    path_archive_data = path.abspath("../Skipass/data/archive_data/Synop")
-    path_2_save = path.abspath("../Skipass/data/")
+    # path_archive_data = path.abspath("../Skipass/data/archive_data/Synop")
+    path_archive_data = '/home/romain/code/LCYRify/Skipass/raw_data/archive_data/Synop'
+    # path_2_save = path.abspath("../Skipass/data/")
+    path_2_save = '/home/romain/code/LCYRify/Skipass/raw_data'
     marker = False
     for i in listdir(path_archive_data):
         with open(path.join(path_archive_data, i), 'rb') as file:
@@ -59,3 +61,19 @@ def create_last15_csv():
     df = fill_missing(df)
 
     return df
+
+def save_arima_station():
+
+    synop_merger_tocsv()
+
+    df = DataSkipass().create_df()
+
+    df = filter_data(df)
+
+    df = fill_missing(df)
+
+    df = replace_nan(df, False, False)
+
+    df.to_csv('/home/romain/code/LCYRify/Skipass/raw_data/stations_arima.csv')
+
+save_arima_station()
