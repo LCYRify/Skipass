@@ -165,7 +165,6 @@ def replace_nan(df, scaler, to_scaled):
 
     chemin = os.path.dirname(os.path.realpath('__file__'))
     path_CSV = chemin + '/../saved_model/scaler.pkl'
-
     # scaling des datas en min max
     if scaler == True:
         if to_scaled == True:
