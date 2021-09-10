@@ -138,9 +138,9 @@ def rain_model():
 
     csv_path = root_path + 'raw_data/stations_arima.csv'
     df = pd.read_csv(csv_path)
-
     model = Pipeline([('scaler', MinMaxScaler()), ('logistic', LogisticRegression())])
-
+    df['date'] = pd.to_datetime(df['date'])
+    stations = df.numer_sta.unique()
 
     if not os.path.exists(directory):
         os.makedirs(directory)
