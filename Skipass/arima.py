@@ -27,7 +27,7 @@ from sklearn.pipeline import Pipeline
 import joblib
 
 
-def my_fit(t, data, guess_freq):
+def my_fit(t, data, t_fit, guess_freq):
 
     guess_mean = np.mean(data)
     guess_std = 3 * np.std(data) / (2**0.5) / (2**0.5)
@@ -42,12 +42,29 @@ def my_fit(t, data, guess_freq):
         2]) + x[3] - data
     est_amp, est_freq, est_phase, est_mean = op.leastsq(
         optimize_func, [guess_amp, guess_freq, guess_phase, guess_mean])[0]
+    return (
+        est_amp * np.sin(est_freq * 2 * np.pi * t_fit / len(t) + est_phase) +
+        est_mean), data_first_guess
 
-    return (est_amp * np.sin(est_freq * 2 * np.pi * t / len(t) + est_phase) +
-            est_mean), data_first_guess
+
+def fourierExtrapolation(x, n_predict):
+    n = x.size
+    n_harm = n
+    t = np.arange(0, n)
+    x_freqdom = fft.fft(x)
+    f = fft.fftfreq(n)
+    indexes = list(range(n))
+    indexes.sort(key=lambda i: np.absolute(f[i]))
+    t = np.arange(0, n + n_predict)
+    restored_sig = np.zeros(t.size)
+    for i in indexes[:1 + n_harm * 2]:
+        ampli = np.absolute(x_freqdom[i]) / n  # amplitude
+        phase = np.angle(x_freqdom[i])  # phase
+        restored_sig += ampli * np.cos(2 * np.pi * f[i] * t + phase)
+    return restored_sig
 
 
-def arima(df, col_name=['t', 'u', 'pmer']):
+def arima(df_f, col_name=['t', 'u', 'pmer']):
     '''Import Raw Dataset (station 7577) and clearing (remove NaN, mq, missing values) '''
     # df = DataSkipass().create_df()
     # df = filter_data(df)
@@ -55,23 +72,24 @@ def arima(df, col_name=['t', 'u', 'pmer']):
     # df = replace_nan(df, False, False)
     print('Preprocesing done : dataset clear')
 
-    df_f = df
     df_f = df_f.reset_index(drop=True)
 
     t = df_f.index
-    col_name = ['t','u','pmer']
+    t1 = df_f.index.values
+    t_fit = np.append(t1, t1[-1]+1)
+    t_fit = np.append(t_fit, t_fit[-1]+1)
     answer = []
 
     for i in col_name:
 
         data = df_f[col_name[i]]
         data_fit, data_first=my_fit(t, data, 11)
+        data_fit_tomorow, data_first = my_fit(t, data, t_fit, 11)
         df_f["unyearly"] = data - data_fit
         df_f.set_index('date', inplace=True)
         df_f = df_f.asfreq(freq='3H')
 
         total_slot = 8 * 25
-        train_slot = 8 * 20
         serie = df_f["unyearly"]
         min_slot = len(serie) - total_slot
         df_slot = df_f[min_slot:]
@@ -91,17 +109,23 @@ def arima(df, col_name=['t', 'u', 'pmer']):
 
         #test_saisonal = result_add.seasonal[train_slot:] + data_fit_slot[train_slot:]
 
-        test_saisonal= 0
+        result_add.seasonal.to_numpy()
 
-        #train_saisonal = result_add.seasonal[0:train_slot] + data_fit_slot[0:train_slot]
+        n_predict = 2
+        n_extra = len(extrapolation)
+        extrapolation = fourierExtrapolation(result_add.seasonal, n_predict)
+        # plt.plot(np.arange(0, extrapolation.size), extrapolation, 'r-', label = 'extrapolation')
+        # plt.plot(np.arange(0, len(df_s.seasonal)), df_s.seasonal, 'bo', label = 'x', linewidth = 3)
+        # plt.plot([n_extra - 2, n_extra - 1], [extrapolation[n_extra-2], extrapolation[n_extra-1]], 'go', label = 'x', linewidth = 3)
+        # plt.legend()
+        # plt.show()
 
-        forecast_recons = forecast + test_saisonal
-        #train_recons = train + train_saisonal
-        #test_recons = test + test_saisonal
-        lower_recons = confidence_int[:, 0] + test_saisonal
-        upper_recons = confidence_int[:, 1] + test_saisonal
+        n_2morerow = len(data_fit_tomorow)
 
-        answer.append(forecast_recons)
+        val_3H = forecast[0] + extrapolation[n_extra - 2] + data_fit_tomorow[n_2morerow - 2]
+        val_6H = forecast[1] + extrapolation[n_extra - 1] + data_fit_tomorow[n_2morerow - 1]
+
+        answer.append(val_6H)
 
     return answer
 
