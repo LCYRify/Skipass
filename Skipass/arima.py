@@ -56,7 +56,7 @@ def arima(df, col_name=['t', 'u', 'pmer']):
     print('Preprocesing done : dataset clear')
 
     df_f = df
-    df_f.reset_index(drop=True)
+    df_f = df_f.reset_index(drop=True)
 
     t = df_f.index
     col_name = ['t','u','pmer']
