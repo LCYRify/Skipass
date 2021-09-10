@@ -14,8 +14,17 @@ from statsmodels.tsa.arima_model import ARIMA
 import pmdarima as pm
 from Skipass.data import DataSkipass
 from Skipass.utils.preprocessing import fill_missing, filter_data, replace_nan
-import Skipass.utils
-from pmdarima import auto_arima
+
+import os
+import pandas as pd
+import numpy as np
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import precision_score, recall_score
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.pipeline import Pipeline
+import joblib
 
 
 def my_fit(t, data, guess_freq):
@@ -38,8 +47,8 @@ def my_fit(t, data, guess_freq):
             est_mean), data_first_guess
 
 
-def arima(df, col_name):
-    '''Import Raw Dataset (station 7    577) and clearing (remove NaN, mq, missing values) '''
+def arima(df, col_name=['t', 'u', 'pmer']):
+    '''Import Raw Dataset (station 7577) and clearing (remove NaN, mq, missing values) '''
     # df = DataSkipass().create_df()
     # df = filter_data(df)
     # df = fill_missing(df)
@@ -50,7 +59,7 @@ def arima(df, col_name):
     df_f.reset_index(drop=True)
 
     t = df_f.index
-
+    col_name = ['t','u','pmer']
     answer = []
 
     for i in col_name:
@@ -95,3 +104,53 @@ def arima(df, col_name):
         answer.append(forecast_recons)
 
     return answer
+
+def rain_model():
+
+    root_path  = '/home/romain/code/LCYRify/Skipass/'
+
+    csv_path = root_path + 'raw_data/stations_arima.csv'
+    df = pd.read_csv(csv_path)
+
+    model = Pipeline([('scaler', MinMaxScaler()), ('logistic', LogisticRegression())])
+
+    directory = root_path + 'save_model/rain_predict'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    for station in stations:
+        # Select the data that corresponds to the station
+        df_station = df[df['numer_sta'] == station]
+        # Calculate the number of rainy and no-rainy segments (called "days")
+        days_of_rain    = (df_station['rr3']==1).sum()
+        days_of_no_rain = (df_station['rr3']==0).sum()
+        print('=====================================================================')
+        print(f'Working on station: {station}')
+        print(f'days_of_no_rain: {days_of_no_rain}, days_of_rain: {days_of_rain}')
+        # Eliminating no-rainy days at random to balance the number of instances of each class
+        df_station = df_station[df_station['rr3'] == 1].append(df_station[df_station['rr3'] == 0].sample(days_of_rain))
+        #  print(df_station.shape)
+        #  print(df_of_rain.shape)
+        #  print(df_of_no_rain.shape)
+        X = df_station[['t', 'u', 'pmer']]
+        y = df_station['rr3']
+        # Split data
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=51)
+        #if station != 7643.0:
+        model.fit(X_train, y_train)
+        model.score(X_train,y_train)
+        y_test_pred = model.predict(X_test)
+        print(model.score(X_train,y_train))
+        print(model.score(X_test,y_test))
+        print(precision_score(y_test, y_test_pred, average='macro'))
+        print(recall_score(y_test, y_test_pred, average='macro'))
+        model_path  = directory + f'/model{int(station)}.pkl'
+        joblib.dump(model, model_path)
+        print(f'Saved in {model_path}')
+
+def get_rain(numer_sta, t, u, pmer): # numer_sta is the station number integer
+    model_path = directory + f'/model{int(station)}.pkl'
+    model = joblib.load(model_path)
+    #  print(lcl[variable_name])
+    X_test = np.array([[t, u, pmer]])
+    return model.predict(X_test)
