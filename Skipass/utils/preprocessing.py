@@ -164,8 +164,7 @@ def replace_nan(df, scaler, to_scaled):
     df = df.astype({"numer_sta": int, "Altitude": int, "dd": int})
 
     chemin = os.path.dirname(os.path.realpath('__file__'))
-    path_CSV = '/Users/devasou/code/LCYRify/Skipass/api/models/scaler.pkl'
-
+    path_CSV = chemin + '/../saved_model/scaler.pkl'
     # scaling des datas en min max
     if scaler == True:
         if to_scaled == True:
@@ -179,7 +178,7 @@ def replace_nan(df, scaler, to_scaled):
         df[['x', 'y', 'z', 'Altitude', 'pmer', 'ff', 't', 'u', 'ssfrai', 'rr3', 'dd_sin', 'dd_cos']] = \
         scaler.transform(df[['x', 'y', 'z', 'Altitude', 'pmer', 'ff', 't', 'u', 'ssfrai', 'rr3', 'dd_sin', 'dd_cos']])
 
-    # df = df[df.numer_sta.isin(params.Stations)]
+    df = df[df.numer_sta.isin(params.Stations)]
 
     return df
     #df = categorize_rain(df,'rr3')

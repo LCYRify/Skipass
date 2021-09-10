@@ -18,12 +18,12 @@ import numpy as np
 def model_run(shape1, shape2):
 
     model = Sequential()
-    model.add(layers.GRU(1,activation='tanh',return_sequences=True,input_shape=(shape1, shape2)))
-    #model.add(layers.GRU(192, activation='tanh', return_sequences=True))
-    #model.add(layers.GRU(320, activation='tanh', return_sequences=True))
-    #model.add(layers.GRU(256, activation='tanh'))
-    #model.add(layers.Dense(128, activation='relu'))
-    #model.add(layers.Dense(8, activation='linear'))
+    model.add(layers.GRU(256,activation='tanh',return_sequences=True,input_shape=(shape1, shape2)))
+    model.add(layers.GRU(192, activation='tanh', return_sequences=True))
+    model.add(layers.GRU(320, activation='tanh', return_sequences=True))
+    model.add(layers.GRU(256, activation='tanh'))
+    model.add(layers.Dense(128, activation='relu'))
+    model.add(layers.Dense(8, activation='linear'))
 
     model.compile(loss='mae',
                   optimizer=RMSprop(learning_rate=0.001),
@@ -31,49 +31,49 @@ def model_run(shape1, shape2):
 
     return model
 
-# df = DataSkipass().create_df()
+df = DataSkipass().create_df()
 
-# df = filter_data(df)
+df = filter_data(df)
 
-# df = fill_missing(df)
+df = fill_missing(df)
 
-# df_scaled = replace_nan(df, True, True)
-# X_train_scaled, y_train, X_valid_scaled, y_valid, X_test_scaled, y_test = split_X_y(df_scaled)
+df_scaled = replace_nan(df, True, True)
+X_train_scaled, y_train, X_valid_scaled, y_valid, X_test_scaled, y_test = split_X_y(df_scaled)
 
-# df = replace_nan(df, False, False)
-# X_train, y_train, X_valid, y_valid, X_test, y_test = split_X_y(df)
+df = replace_nan(df, False, False)
+X_train, y_train, X_valid, y_valid, X_test, y_test = split_X_y(df)
 
-# print('La baseline mse est de : ' + str(baseline_mse(X_train, y_train)))
-# print('La baseline mae est de : ' + str(baseline_mae(X_train, y_train)))
+print('La baseline mse est de : ' + str(baseline_mse(X_train, y_train)))
+print('La baseline mae est de : ' + str(baseline_mae(X_train, y_train)))
 
-# test_predict_X = X_train[0]
-# test_predict_y = y_train[0]
+test_predict_X = X_train[0]
+test_predict_y = y_train[0]
 
-# del X_train, X_valid, X_test, df_scaled, df
+del X_train, X_valid, X_test, df_scaled, df
 
-# col = y_train[0].columns
+col = y_train[0].columns
 
-# X_train, y_train = df_2_nparray(X_train_scaled, y_train)
-# X_valid, y_valid = df_2_nparray(X_valid_scaled, y_valid)
-# X_test, y_test = df_2_nparray(X_test_scaled, y_test)
+X_train, y_train = df_2_nparray(X_train_scaled, y_train)
+X_valid, y_valid = df_2_nparray(X_valid_scaled, y_valid)
+X_test, y_test = df_2_nparray(X_test_scaled, y_test)
 
-# del X_test_scaled, X_train_scaled, X_valid_scaled
+del X_test_scaled, X_train_scaled, X_valid_scaled
 
-# shape1 = X_train.shape[1]
-# shape2 = X_train.shape[2]
+shape1 = X_train.shape[1]
+shape2 = X_train.shape[2]
 
-# model = model_run(shape1, shape2)
+model = model_run(shape1, shape2)
 
-# es = EarlyStopping(patience=1, restore_best_weights=True)
+es = EarlyStopping(patience=25, restore_best_weights=True)
 
-# history = model.fit(X_train,
-#                     y_train,
-#                     epochs=1,
-#                     validation_data=(X_valid, y_valid),
-#                     callbacks=[es])
+history = model.fit(X_train,
+                    y_train,
+                    epochs=1000,
+                    validation_data=(X_valid, y_valid),
+                    callbacks=[es])
 
-# loss, mae = model.evaluate(X_test, y_test, verbose=2)
+loss, mae = model.evaluate(X_test, y_test, verbose=2)
 
-# model.save('../saved_model/meteo1/model.h5')
+model.save('../saved_model/meteo1')
 
-# storage_upload(history)
+#storage_upload(history)
