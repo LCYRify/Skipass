@@ -14,10 +14,7 @@ from statsmodels.tsa.arima_model import ARIMA
 import pmdarima as pm
 from Skipass.data import DataSkipass
 from Skipass.utils.preprocessing import fill_missing, filter_data, replace_nan
-
-import os
-import pandas as pd
-import numpy as np
+from numpy import fft
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
@@ -25,6 +22,9 @@ from sklearn.metrics import precision_score, recall_score
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.pipeline import Pipeline
 import joblib
+
+root_path = '/home/romain/code/LCYRify/Skipass/'
+directory = root_path + 'save_model/rain_predict'
 
 
 def my_fit(t, data, t_fit, guess_freq):
@@ -65,33 +65,37 @@ def fourierExtrapolation(x, n_predict):
 
 
 def arima(df_f, col_name=['t', 'u', 'pmer']):
-    '''Import Raw Dataset (station 7577) and clearing (remove NaN, mq, missing values) '''
+    # '''Import Raw Dataset (station 7577) and clearing (remove NaN, mq, missing values) '''
     # df = DataSkipass().create_df()
     # df = filter_data(df)
     # df = fill_missing(df)
     # df = replace_nan(df, False, False)
-    print('Preprocesing done : dataset clear')
+    # print('Preprocesing done : dataset clear')
 
     df_f = df_f.reset_index(drop=True)
-
+    df_f['date'] = pd.to_datetime(df_f['date'])
     t = df_f.index
     t1 = df_f.index.values
     t_fit = np.append(t1, t1[-1]+1)
     t_fit = np.append(t_fit, t_fit[-1]+1)
     answer = []
+    df = df_f.copy()
 
     for i in col_name:
 
-        data = df_f[col_name[i]]
-        data_fit, data_first=my_fit(t, data, 11)
+        df_f = df.copy()
+        data = df_f[i]
+        data_fit, data_first=my_fit(t, data, t, 11)
         data_fit_tomorow, data_first = my_fit(t, data, t_fit, 11)
+
         df_f["unyearly"] = data - data_fit
-        df_f.set_index('date', inplace=True)
-        df_f = df_f.asfreq(freq='3H')
+        df_f.set_index('date', inplace=True, drop=True)
+        df_f.asfreq(freq='3H')
 
         total_slot = 8 * 25
         serie = df_f["unyearly"]
         min_slot = len(serie) - total_slot
+
         df_slot = df_f[min_slot:]
 
         result_add = seasonal_decompose(df_slot["unyearly"], model='additive')
@@ -112,8 +116,9 @@ def arima(df_f, col_name=['t', 'u', 'pmer']):
         result_add.seasonal.to_numpy()
 
         n_predict = 2
-        n_extra = len(extrapolation)
         extrapolation = fourierExtrapolation(result_add.seasonal, n_predict)
+        n_extra = len(extrapolation)
+
         # plt.plot(np.arange(0, extrapolation.size), extrapolation, 'r-', label = 'extrapolation')
         # plt.plot(np.arange(0, len(df_s.seasonal)), df_s.seasonal, 'bo', label = 'x', linewidth = 3)
         # plt.plot([n_extra - 2, n_extra - 1], [extrapolation[n_extra-2], extrapolation[n_extra-1]], 'go', label = 'x', linewidth = 3)
@@ -131,14 +136,12 @@ def arima(df_f, col_name=['t', 'u', 'pmer']):
 
 def rain_model():
 
-    root_path  = '/home/romain/code/LCYRify/Skipass/'
-
     csv_path = root_path + 'raw_data/stations_arima.csv'
     df = pd.read_csv(csv_path)
 
     model = Pipeline([('scaler', MinMaxScaler()), ('logistic', LogisticRegression())])
 
-    directory = root_path + 'save_model/rain_predict'
+
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -172,7 +175,8 @@ def rain_model():
         joblib.dump(model, model_path)
         print(f'Saved in {model_path}')
 
-def get_rain(numer_sta, t, u, pmer): # numer_sta is the station number integer
+
+def get_rain(station, t, u, pmer):  # numer_sta is the station number integer
     model_path = directory + f'/model{int(station)}.pkl'
     model = joblib.load(model_path)
     #  print(lcl[variable_name])
